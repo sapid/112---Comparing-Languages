@@ -26,7 +26,7 @@ print $USAGE and exit if $OPTIONS{'h'};
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
 open my $file, "<filename" or die "$0:$filename:$!\n";
-while (defined(my($line) = <$file>)){
+while (my($line) = <$file>){
 # Do stuff with the line.
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
@@ -34,7 +34,7 @@ while (defined(my($line) = <$file>)){
    if ($line =~ /(\w+)\s=\s(.+)/){
         my($macro) = $1;
         my($value) = $2;
-        $macro_hash{$macro} = $value;
+        # $macro_hash{$macro} = $value;
         print "Added! macro\n";
     }
 #Checks to see if the line is a target. If it is, it adds it to the target
@@ -42,13 +42,13 @@ while (defined(my($line) = <$file>)){
     elsif ($line =~ /(\w+)\s:\s(.+)/){
         my($target) = $1;
         my($pre) = $2;
-        $target_hash{$target} = $pre;
+        # $target_hash{$target} = $pre;
         print "Added! target\n";
     }
 #Checks to see if the line is a command. If it is, it adds it to the cmd list
     elsif ($line =~ /\s(.+)/){
         my($cmd) = $1;
-        push(@cmd_hash, $cmd);
+        #push(my(@cmd_hash), $cmd);
     }
 
 }
