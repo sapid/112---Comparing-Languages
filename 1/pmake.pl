@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use POSIX qw(locale_h);
 
 $0 =~ s|^(.*/)?([^/]+)/*$|$2|; # Get the basename.
 my $EXITCODE = 0;
@@ -8,6 +9,7 @@ END { exit $EXITCODE; } # Return exit code on exit.
 sub note(@) { print STDERR "$0: @_"; };
 $SIG{'__WARN__'} = sub { note @_; $EXITCODE = 1; };
 $SIG{'__DIE__'} = sub { warn @_; exit; };
+
 
 (my $USAGE = <<__END_USAGE__) =~ s/^#[ ]?//gm;
 #
@@ -18,13 +20,13 @@ __END_USAGE__
 
 use Getopt::Std;
 my %OPTIONS;
-getopts ("chnstv", \%OPTIONS); # These options are wrong.
+getopts ("hdnf:", \%OPTIONS);
 print $USAGE and exit if $OPTIONS{'h'};
 
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
-open my $file "<filename" or die "$0:$filename:$!\n"
-while( defined(my $line = <$file>)) {
+open my $file, "<filename" or die "$0:$filename:$!\n"
+while (defined(my $line = <$file> ) ) {
 # Do stuff with the line.
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
