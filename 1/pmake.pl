@@ -25,8 +25,8 @@ print $USAGE and exit if $OPTIONS{'h'};
 
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
-open my $file, "<filename" or die "$0:$filename:$!\n"
-while (defined(my $line = <$file> ) ) {
+open my $file, "<filename" or die "$0:$filename:$!\n";
+while (defined(my($line) = <$file>)){
 # Do stuff with the line.
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
