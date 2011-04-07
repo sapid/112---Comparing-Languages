@@ -43,6 +43,7 @@ while (my $line = <$file>){
    if ($line =~ /(\w+)\s=\s+(.+)/){
         my($macro) = $1;
         my($value) = $2;
+		  die "Macro $1 assigned to null string!" if ($2 == undef);
         $macro_hash{$macro} = $value;
         print "Added! macro\n";
     }
