@@ -28,10 +28,10 @@ my $filename = 'Makefile';
 $filename = $OPTIONS{'f'} if $OPTIONS{'f'};
 # Get target.
 my $myTarget = $ARGV[0] if $ARGV[0];
-print "Filename is $filename";
+
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
-open my $file, "<filename" or die "$0:$filename:$!\n";
+open my $file, "<$filename" or die "$0:$filename:$!\n";
 while (my($line) = <$file>){
 # Do stuff with the line.
 
