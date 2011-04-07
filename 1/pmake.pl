@@ -87,21 +87,26 @@ while (my $line = <$file>){
     }
 
 }
-while (my ($k, my $v) = each %macro_hash) {print "$k -- $v\n"};
 
 my @macro_back = reverse(@macro_list);
-my $myMacro = ();
 # THIS LOOP DOES NOT WORK AS INTENDED.
-for $myMacro (@macro_list){
-	print "Checking $myMacro. ";
-	if ($macro_hash{$myMacro} =~ /\${([^}]+)}/) {
-		print "Substituting $1 in $myMacro.\n";
-		#Iter through macro_back until a match or failure.
-		#Define a replacement.
-		my $replacement = 'REPLACED';
-		$macro_hash{$myMacro} =~ s/\${[^}]}/$replacement/;
-		print "\t$macro_hash{$myMacro}\n";
-	}
-	print "\n";
+foreach my $myMacro (@macro_list){
+	print "Checking $myMacro:\n ";
+        my @check_list = $macro_hash{$myMacro};
+        for (my $count = 0; $count < @check_list; $count++){
+            my $value = $check_list[$count];
+            my $replace_string;
+            print "Checking: $value\n";
+            if ($value =~ /\${[^}]+}/){
+                print "Found Macro: $value\n";
+                my @replace_list = $macro_hash{$1};
+                foreach my $str (@replace_list){
+                    $replace_string = $replace_string . " " . $str;
+                }
+                $check_list[$count] = $replace_string;
+                print "Replaced with: $replace_string\n:";
+            }
+       }
+   
 }
 close $file;
