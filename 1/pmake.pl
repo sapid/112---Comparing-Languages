@@ -43,7 +43,7 @@ while (my $line = <$file>){
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
 #hash
-   if ($line =~ /\s*(\S+)\s*=\s+(.+)/){
+   if ($line =~ /\s*(\S+\s*\S*)\s*=\s+(.+)/){
         my($macro) = $1;
         my($value) = $2;
 		  #die "Macro $1 assigned to null string!" if ($2 == undef);
@@ -73,5 +73,4 @@ while (my $line = <$file>){
 
 }
 while (my ($k, my $v) = each %macro_hash) {print "$k -- $v\n"};
-
 close $file;
