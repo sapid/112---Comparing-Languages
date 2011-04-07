@@ -33,6 +33,8 @@ my $myTarget = $ARGV[0] if $ARGV[0];
 open my $file, "<$filename" or die "$0:$filename:$!\n";
 my %macro_hash = ();
 my %target_hash = ();
+my %cmd_hash = ();
+my $target = ();
 #my $line = ();
 while (my $line = <$file>){
 	chomp($line);
@@ -40,17 +42,19 @@ while (my $line = <$file>){
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
 #hash
-   if ($line =~ /(\w+)\s=\s+(.+)/){
+   if ($line =~ /\s*(\S+)\s*=\s+(.+)/){
         my($macro) = $1;
         my($value) = $2;
-		  die "Macro $1 assigned to null string!" if ($2 == undef);
+		  #die "Macro $1 assigned to null string!" if ($2 == undef);
         $macro_hash{$macro} = $value;
-        print "Added! macro\n";
+        print "Added! macro. $1 = $2\n";
+
     }
 #Checks to see if the line is a target. If it is, it adds it to the target
 #hash
-    elsif ($line =~ /(\w+)\s*:.*/){
-    	my($target) = $1;
+    elsif ($line =~ /\s*(\S+)\s*:.*/){
+    	$target = $1;
+		$cmd_hash{$target} = ();
     	if($line =~ /.+:\s+(.+)/){
     		$target_hash{$target} = $1;
     	}
@@ -59,10 +63,13 @@ while (my $line = <$file>){
         print "Added! target: $target\n";
     }
 #Checks to see if the line is a command. If it is, it adds it to the cmd list
-    elsif ($line =~ /\s(.+)/){
+    elsif ($line =~ /\t\s*(.+)/){
         my($cmd) = $1;
-        #push(my(@cmd_hash), $cmd);
+        push(@{$cmd_hash{$target}}, $cmd);
+		  print "Command found: $1";
     }
 
 }
+while (my ($k, my $v) = each %macro_hash) {print "$k -- $v\n"};
+
 close $file;
