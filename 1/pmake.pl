@@ -32,6 +32,7 @@ my $myTarget = $ARGV[0] if $ARGV[0];
 # Set flags based on command-line flags.
 open my $file, "<$filename" or die "$0:$filename:$!\n";
 my %macro_hash = ();
+my @macro_list = ();
 my %target_hash = ();
 my %cmd_hash = ();
 my $target = ();
@@ -47,6 +48,7 @@ while (my $line = <$file>){
         my($value) = $2;
 		  #die "Macro $1 assigned to null string!" if ($2 == undef);
         $macro_hash{$macro} = $value;
+		  push @macro_list, $1;
         print "Added! macro. $1 = $2\n";
 
     }
