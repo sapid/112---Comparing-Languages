@@ -47,28 +47,43 @@ while (my $line = <$file>){
         my($macro) = $1;
         my($value) = $2;
 		  #die "Macro $1 assigned to null string!" if ($2 == undef);
-        $macro_hash{$macro} = $value;
-		  push @macro_list, $1;
-        print "Added! macro. $1 = $2\n";
+        my @value_split = ();
+        @value_split = split(" ", $value);
+        $macro_hash{$macro} = @value_split;
+        push @macro_list, $1;
+        print "\nAdded! macro. $1\n";
+        foreach my $value (@value_split){
+            print "with value: $value\n";
+        }
 
     }
 #Checks to see if the line is a target. If it is, it adds it to the target
 #hash
-    elsif ($line =~ /\s*(\S+)\s*:.*/){
+    elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
     	$target = $1;
-		$cmd_hash{$target} = ();
+	$cmd_hash{$target} = ();
     	if($line =~ /.+:\s+(.+)/){
-    		$target_hash{$target} = $1;
+            my @value_split = ();
+            @value_split = split(" ", $1);
+    	    $target_hash{$target} = @value_split;
+            print "\nAdded! target: $target\n";
+            foreach my $value (@value_split){
+                print "with value: $value\n";
+            }
     	}
-    	else {$target_hash{$target} = "";}
-        print "Target found; $target : $target_hash{$target}\n";
-        print "Added! target: $target\n";
+    	else {$target_hash{$target} = "";print "no value\n";}
+        
     }
 #Checks to see if the line is a command. If it is, it adds it to the cmd list
     elsif ($line =~ /\t\s*(.+)/){
         my($cmd) = $1;
-        push(@{$cmd_hash{$target}}, $cmd);
-		  print "Command found: $1";
+        my @value_split = ();
+        @value_split = split(" ",$cmd);
+        push(@{$cmd_hash{$target}}, @value_split);
+        print "Command for $target:\n";
+        foreach my $value (@value_split){
+           print "$value\n";
+        }
     }
 
 }
