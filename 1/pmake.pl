@@ -19,10 +19,16 @@ $SIG{'__DIE__'} = sub { warn @_; exit; };
 __END_USAGE__
 
 use Getopt::Std;
-my %OPTIONS;
+my %OPTIONS = ();
 getopts ("hdnf:", \%OPTIONS);
 print $USAGE and exit if $OPTIONS{'h'};
 
+# Get filename.
+my $filename = 'Makefile';
+$filename = $OPTIONS{'f'} if $OPTIONS{'f'};
+# Get target.
+my $myTarget = $ARGV[0] if $ARGV[0];
+print "Filename is $filename";
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
 open my $file, "<filename" or die "$0:$filename:$!\n";
