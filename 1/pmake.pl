@@ -17,7 +17,6 @@ $SIG{'__DIE__'} = sub { warn @_; exit; };
 #    $0 - $0 Perform Makefile tasks with Perl
 #
 __END_USAGE__
-
 use Getopt::Std;
 my %OPTIONS = ();
 getopts ("hdnf:", \%OPTIONS);
@@ -32,7 +31,12 @@ my $myTarget = $ARGV[0] if $ARGV[0];
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
 open my $file, "<$filename" or die "$0:$filename:$!\n";
-while (my($line) = <$file>){
+my %macro_hash = ();
+my %target_hash = ();
+#my $line = ();
+while (my $line = <$file>){
+	print "Checking $line";
+	chomp($line);
 # Do stuff with the line.
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
@@ -40,16 +44,19 @@ while (my($line) = <$file>){
    if ($line =~ /(\w+)\s=\s(.+)/){
         my($macro) = $1;
         my($value) = $2;
-        # $macro_hash{$macro} = $value;
+        $macro_hash{$macro} = $value;
         print "Added! macro\n";
     }
 #Checks to see if the line is a target. If it is, it adds it to the target
 #hash
-    elsif ($line =~ /(\w+)\s:\s(.+)/){
-        my($target) = $1;
-        my($pre) = $2;
-        # $target_hash{$target} = $pre;
-        print "Added! target\n";
+    elsif ($line =~ /(\w+)\s*:.*/){
+    	my($target) = $1;
+    	if($line =~ /.+:\s*(.+)/){
+    		$target_hash{$target} = $1;
+    	}
+    	else {$target_hash{$target} = undef;}
+        print "Target found; $target : $target_hash{$target}\n";
+        print "Added! target: $target\n";
     }
 #Checks to see if the line is a command. If it is, it adds it to the cmd list
     elsif ($line =~ /\s(.+)/){
@@ -58,3 +65,4 @@ while (my($line) = <$file>){
     }
 
 }
+close $file;
