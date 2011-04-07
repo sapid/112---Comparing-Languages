@@ -35,13 +35,12 @@ my %macro_hash = ();
 my %target_hash = ();
 #my $line = ();
 while (my $line = <$file>){
-	print "Checking $line";
 	chomp($line);
 # Do stuff with the line.
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
 #hash
-   if ($line =~ /(\w+)\s=\s(.+)/){
+   if ($line =~ /(\w+)\s=\s+(.+)/){
         my($macro) = $1;
         my($value) = $2;
         $macro_hash{$macro} = $value;
@@ -51,10 +50,10 @@ while (my $line = <$file>){
 #hash
     elsif ($line =~ /(\w+)\s*:.*/){
     	my($target) = $1;
-    	if($line =~ /.+:\s*(.+)/){
+    	if($line =~ /.+:\s+(.+)/){
     		$target_hash{$target} = $1;
     	}
-    	else {$target_hash{$target} = undef;}
+    	else {$target_hash{$target} = "";}
         print "Target found; $target : $target_hash{$target}\n";
         print "Added! target: $target\n";
     }
