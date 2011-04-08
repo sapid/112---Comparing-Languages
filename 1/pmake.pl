@@ -62,8 +62,9 @@ while (my $line = <$file>){
     	if($line =~ /.+:\s+(.+)/){
             my @value_split = ();
             @value_split = split(" ", $1);
-    	    $target_hash{$target} = [@value_split];
+    	      $target_hash{$target} = [@value_split];
             push(@has_pre,$target);
+				push(@has_pre,';');
     	}
     	else {
             $target_hash{$target} = "";
@@ -160,4 +161,7 @@ foreach my $Tar (keys %cmd_hash){
     }
     $cmd_hash{$Tar} = $done_string;
 }
+
+# Now we just have to run the target.
+
 close $file;
