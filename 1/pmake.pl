@@ -128,7 +128,7 @@ foreach my $Tar (@has_pre){
 }
 #Converts the list from the target has to strings. This is used so we can
 #easily call them from the command line
-foreach my $Tar (@has_pre){
+foreach $Tar (@has_pre){
     my @check_list = @{$target_hash{$Tar}};
     my $done_string = "";
     for (my $count = 0; $count < @check_list; $count++){
@@ -138,7 +138,7 @@ foreach my $Tar (@has_pre){
 }
 
 #Replaces all of the macros in commands with their values
-foreach my $Tar (keys %cmd_hash){
+foreach $Tar (keys %cmd_hash){
     if (exists($cmd_hash{$Tar})){
         my @check_list = @{$cmd_hash{$Tar}};
         for (my $count = 0; $count < @check_list; $count++){
@@ -152,7 +152,7 @@ foreach my $Tar (keys %cmd_hash){
     }
 }
 #Converst all of the commands to strings with macro definitions complete
-foreach my $Tar (keys %cmd_hash){
+foreach $Tar (keys %cmd_hash){
     my @check_list = @{$cmd_hash{$Tar}};
     my $done_string = "";
     for (my $count = 0; $count < @check_list; $count++){
