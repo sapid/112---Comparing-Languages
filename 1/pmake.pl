@@ -64,7 +64,6 @@ while (my $line = <$file>){
             @value_split = split(" ", $1);
     	      $target_hash{$target} = [@value_split];
             push(@has_pre,$target);
-				push(@has_pre,';');
     	}
     	else {
             $target_hash{$target} = "";
@@ -81,6 +80,7 @@ while (my $line = <$file>){
             $cmd_hash{$target} = ();
             @value_split = split(" ",$cmd);
             push(@{$cmd_hash{$target}}, @value_split);
+				push(@{$cmd_hash{$target}}, ';');
         }
     }
   }
