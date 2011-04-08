@@ -151,7 +151,7 @@ foreach $Tar (keys %cmd_hash){
         }
     }
 }
-#Converst all of the commands to strings with macro definitions complete
+#Converts all of the commands to strings with macro definitions complete
 foreach $Tar (keys %cmd_hash){
     my @check_list = @{$cmd_hash{$Tar}};
     my $done_string = "";
