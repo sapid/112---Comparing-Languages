@@ -191,7 +191,7 @@ sub check_execute{
 	%temp_hash = $cmd_hash{$Tar};	
 	while($temp_hash{$Tar} =~ s/(.*;)\s*//){
 		my $cmd = $1;
-		print "$cmd";
+		print "$cmd\n";
 		if($OPTIONS{'n'}{next;} 
 		system($cmd) == 0 or die("$0:$cmd:$!\n"); #We should probably pull out individual commands. They will be semi-colon separated.
 	}
