@@ -26,7 +26,8 @@ print $USAGE and exit if $OPTIONS{'h'};
 my $filename = 'Makefile';
 $filename = $OPTIONS{'f'} if $OPTIONS{'f'};
 # Get target.
-my $myTarget = $ARGV[0] if $ARGV[0];
+my $myTarget = "";
+$myTarget = $ARGV[0] if $ARGV[0];
 
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
@@ -59,6 +60,7 @@ while (my $line = <$file>){
 #hash
     elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
     	$target = $1;
+		if ($myTarget eq "") { $myTarget = $target;}
     	if($line =~ /.+:\s+(.+)/){
             my @value_split = ();
             @value_split = split(" ", $1);
@@ -163,4 +165,17 @@ foreach my $Tar (keys %cmd_hash){
 }
 
 # Now we just have to check for target dependencies, check how new they are, run them, and then run the target.
+check_execute($myTarget, 0); 
+sub check_execute{
+	my $Tar = $_[0];
+	my $timestamp = $_[1];
+	foreach my $prereq (){
+
+	}
+	# Get target prereqs via hash{$Tar}
+	# For each prereq...
+	# 		Doesn't exist? check_execute.
+	# 		Exists? Are prereqs newer than the target? Run check_execute. 
+}
+
 close $file;
