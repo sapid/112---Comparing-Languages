@@ -162,6 +162,5 @@ foreach my $Tar (keys %cmd_hash){
     $cmd_hash{$Tar} = $done_string;
 }
 
-# Now we just have to run the target.
-
+# Now we just have to check for target dependencies, check how new they are, run them, and then run the target.
 close $file;
