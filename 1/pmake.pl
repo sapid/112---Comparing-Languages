@@ -34,6 +34,7 @@ open my $file, "<$filename" or die "$0:$filename:$!\n";
 my %macro_hash = ();
 my @macro_list = ();
 my %target_hash = ();
+my @has_pre = ();
 my %cmd_hash = ();
 my $target = ();
 #my $line = ();
@@ -43,70 +44,121 @@ while (my $line = <$file>){
 
 #Checks to see if the line is a macro. If it is macro, it adds it to the macro
 #hash
-   if ($line =~ /\s*(\S+\s*\S*)\s*=\s+(.+)/){
+   if ($line !~ /#.+/){
+   if ($line =~ /\s*(\S+)\s*=\s+(.+)/){
         my($macro) = $1;
         my($value) = $2;
 		  #die "Macro $1 assigned to null string!" if ($2 == undef);
         my @value_split = ();
         @value_split = split(" ", $value);
-        $macro_hash{$macro} = @value_split;
-        push @macro_list, $1;
-        print "\nAdded! macro. $1\n";
-        foreach my $value (@value_split){
-            print "with value: $value\n";
-        }
-
+        $macro_hash{$macro} = [@value_split];
+        push (@macro_list, $1);
+        my @test = @{$macro_hash{$macro}};
     }
 #Checks to see if the line is a target. If it is, it adds it to the target
 #hash
     elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
     	$target = $1;
-	$cmd_hash{$target} = ();
     	if($line =~ /.+:\s+(.+)/){
             my @value_split = ();
             @value_split = split(" ", $1);
-    	    $target_hash{$target} = @value_split;
-            print "\nAdded! target: $target\n";
-            foreach my $value (@value_split){
-                print "with value: $value\n";
-            }
+    	    $target_hash{$target} = [@value_split];
+            push(@has_pre,$target);
     	}
-    	else {$target_hash{$target} = "";print "no value\n";}
-        
+    	else {
+            $target_hash{$target} = "";
+        }
     }
 #Checks to see if the line is a command. If it is, it adds it to the cmd list
     elsif ($line =~ /\t\s*(.+)/){
         my($cmd) = $1;
         my @value_split = ();
-        @value_split = split(" ",$cmd);
-        push(@{$cmd_hash{$target}}, @value_split);
-        print "Command for $target:\n";
-        foreach my $value (@value_split){
-           print "$value\n";
+        if (exists $cmd_hash{$target}){
+            @value_split = split(" ",$cmd);
+            push(@{$cmd_hash{$target}}, @value_split);
+        }else{
+            $cmd_hash{$target} = ();
+            @value_split = split(" ",$cmd);
+            push(@{$cmd_hash{$target}}, @value_split);
         }
     }
-
+  }
 }
-
+#Replaces all of the macros with their definitions. The previous macros are
+#used to do this
 my @macro_back = reverse(@macro_list);
-# THIS LOOP DOES NOT WORK AS INTENDED.
 foreach my $myMacro (@macro_list){
-	print "Checking $myMacro:\n ";
-        my @check_list = $macro_hash{$myMacro};
+        my @check_list = @{$macro_hash{$myMacro}};
+        my $done_string = "";
         for (my $count = 0; $count < @check_list; $count++){
             my $value = $check_list[$count];
-            my $replace_string;
-            print "Checking: $value\n";
-            if ($value =~ /\${[^}]+}/){
-                print "Found Macro: $value\n";
-                my @replace_list = $macro_hash{$1};
+            my $replace_string = "";
+            if ($value =~ /\$\{([^\}]+)\}/){
+                my @replace_list = @{$macro_hash{$1}};
                 foreach my $str (@replace_list){
-                    $replace_string = $replace_string . " " . $str;
+                    $replace_string = $replace_string . $str . " ";
                 }
+                chop($replace_string);
                 $check_list[$count] = $replace_string;
-                print "Replaced with: $replace_string\n:";
             }
        }
-   
+       $macro_hash{$myMacro} = [@check_list];
+}
+#Takes the lists from the macro hash and convers them to strings. this is done
+#so we can easily call them from the command line
+foreach my $myMacro (@macro_list){
+    my @check_list = @{$macro_hash{$myMacro}};
+    my $done_string = "";
+    for(my $count = 0; $count < @check_list; $count++){
+        $done_string = $done_string . $check_list[$count] . " ";
+    }
+    $macro_hash{$myMacro} = $done_string;
+}
+#Replaces all of the macros in targets with their definitions.
+foreach my $Tar (@has_pre){
+    my @check_list = @{$target_hash{$Tar}};
+    for (my $count = 0; $count < @check_list; $count++){
+    my $value = $check_list[$count];
+    my $replace_string = "";
+    if ($value =~ /\$\{([^\}]+)\}/){
+        $replace_string = $macro_hash{$1};
+        $check_list[$count] = $replace_string;
+        }
+    }
+}
+#Converts the list from the target has to strings. This is used so we can
+#easily call them from the command line
+foreach my $Tar (@has_pre){
+    my @check_list = @{$target_hash{$Tar}};
+    my $done_string = "";
+    for (my $count = 0; $count < @check_list; $count++){
+        $done_string = $done_string . $check_list[$count] . " ";
+    }
+    $target_hash{$Tar} = $done_string;
+}
+
+#Replaces all of the macros in commands with their values
+foreach my $Tar (keys %cmd_hash){
+    if (exists($cmd_hash{$Tar})){
+        my @check_list = @{$cmd_hash{$Tar}};
+        for (my $count = 0; $count < @check_list; $count++){
+            my $value = $check_list[$count];
+            my $replace_string = "";
+            if ($value =~  /\$\{([^\}]+)\}/){
+                $replace_string = $macro_hash{$1};
+                $check_list[$count] = $replace_string;
+            }
+        }
+    }
+}
+#Converst all of the commands to strings with macro definitions complete
+foreach my $Tar (keys %cmd_hash){
+    my @check_list = @{$cmd_hash{$Tar}};
+    my $done_string = "";
+    for (my $count = 0; $count < @check_list; $count++){
+        $done_string = $done_string . $check_list[$count] . " ";
+    }
+    $cmd_hash{$Tar} = $done_string;
 }
 close $file;
+
