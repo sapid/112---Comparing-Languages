@@ -165,17 +165,21 @@ foreach my $Tar (keys %cmd_hash){
 }
 
 # Now we just have to check for target dependencies, check how new they are, run them, and then run the target.
-check_execute($myTarget, 0); 
+my $time = time;
+check_execute($myTarget, $time); 
 sub check_execute{
 	my $Tar = $_[0];
 	my $timestamp = $_[1];
-	foreach my $prereq (){
-
+	while($target_hash{$Tar} =~ s/(\S+)\s*//){ # Find a target and remove it from the string.
+		my $prereq = $1; # The target we found.
+		if(stat($prereq){
+			check_execute($prereq, stat($prereq)[9]); #stat[9] is last modified time since the epoch.
+		}
+		else {
+			check_execute($prereq, $time);
+		}
 	}
-	# Get target prereqs via hash{$Tar}
-	# For each prereq...
-	# 		Doesn't exist? check_execute.
-	# 		Exists? Are prereqs newer than the target? Run check_execute. 
+	system($cmd_hash{$Tar}) == 0 or die("$0:$cmd_hash{$Tar}:$!\n"); #We should probably pull out individual commands. They will be semi-colon separated.
 }
 
 close $file;
