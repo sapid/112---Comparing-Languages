@@ -104,7 +104,7 @@ foreach my $myMacro (@macro_list){
        }
        $macro_hash{$myMacro} = [@check_list];
 }
-#Takes the lists from the macro hash and convers them to strings. this is done
+#Takes the lists from the macro hash and converts them to strings. This is done
 #so we can easily call them from the command line
 foreach my $myMacro (@macro_list){
     my @check_list = @{$macro_hash{$myMacro}};
@@ -126,9 +126,9 @@ foreach my $Tar (@has_pre){
         }
     }
 }
-#Converts the list from the target has to strings. This is used so we can
+#Converts the list the target has to strings. This is used so we can
 #easily call them from the command line
-foreach $Tar (@has_pre){
+foreach my $Tar (@has_pre){
     my @check_list = @{$target_hash{$Tar}};
     my $done_string = "";
     for (my $count = 0; $count < @check_list; $count++){
@@ -138,7 +138,7 @@ foreach $Tar (@has_pre){
 }
 
 #Replaces all of the macros in commands with their values
-foreach $Tar (keys %cmd_hash){
+foreach my $Tar (keys %cmd_hash){
     if (exists($cmd_hash{$Tar})){
         my @check_list = @{$cmd_hash{$Tar}};
         for (my $count = 0; $count < @check_list; $count++){
@@ -152,7 +152,7 @@ foreach $Tar (keys %cmd_hash){
     }
 }
 #Converts all of the commands to strings with macro definitions complete
-foreach $Tar (keys %cmd_hash){
+foreach my $Tar (keys %cmd_hash){
     my @check_list = @{$cmd_hash{$Tar}};
     my $done_string = "";
     for (my $count = 0; $count < @check_list; $count++){
@@ -161,4 +161,3 @@ foreach $Tar (keys %cmd_hash){
     $cmd_hash{$Tar} = $done_string;
 }
 close $file;
-
