@@ -193,9 +193,15 @@ sub check_execute{
 		my $cmd = $1;
 		print "$cmd\n";
 		if($OPTIONS{'n'}{next;} 
-		system($cmd) == 0 or die("$0:$cmd:$!\n"); #We should probably pull out individual commands. They will be semi-colon separated.
+		my $return_code = system($cmd);
+		if($return_code != 0){
+			$EXITCODE = $return_code;
+			print("$0:$cmd:$!\n"); 
+			exit;
+		}
 	}
 	return 1;
 }
 
 close $file;
+exit;
