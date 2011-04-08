@@ -15,6 +15,14 @@ $SIG{'__DIE__'} = sub { warn @_; exit; };
 #
 # NAME
 #    $0 - $0 Perform Makefile tasks with Perl
+# OPTIONS
+# 	  -h: This usage information.
+#
+# 	  -d: Displays the reasons why make chooses to rebuild a target. (Debug information.)
+#
+# 	  -n: Only print commands; do not execute.
+#
+# 	  -f: Specify a Makefile to use.
 #
 __END_USAGE__
 use Getopt::Std;
@@ -170,7 +178,8 @@ check_execute($myTarget, $time);
 sub check_execute{
 	my $Tar = $_[0];
 	my $timestamp = $_[1];
-	while($target_hash{$Tar} =~ s/(\S+)\s*//){ # Find a target and remove it from the string.
+	my %temp_hash = $target_hash{$Tar};
+	while($temp_hash{$Tar} =~ s/(\S+)\s*//){ # Find a target and remove it from the string.
 		my $prereq = $1; # The target we found.
 		if(stat($prereq){
 			check_execute($prereq, stat($prereq)[9]); #stat[9] is last modified time since the epoch.
@@ -179,7 +188,14 @@ sub check_execute{
 			check_execute($prereq, $time);
 		}
 	}
-	system($cmd_hash{$Tar}) == 0 or die("$0:$cmd_hash{$Tar}:$!\n"); #We should probably pull out individual commands. They will be semi-colon separated.
+	%temp_hash = $cmd_hash{$Tar};	
+	while($temp_hash{$Tar} =~ s/(.*;)\s*//){
+		my $cmd = $1;
+		print "$cmd";
+		if($OPTIONS{'n'}{next;} 
+		system($cmd) == 0 or die("$0:$cmd:$!\n"); #We should probably pull out individual commands. They will be semi-colon separated.
+	}
+	return 1;
 }
 
 close $file;
