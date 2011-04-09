@@ -16,13 +16,13 @@ $SIG{'__DIE__'} = sub { warn @_; exit; };
 # NAME
 #    $0 - $0 Perform Makefile tasks with Perl
 # OPTIONS
-# 	  -h: This usage information.
+#         -h: This usage information.
 #
-# 	  -d: Displays the reasons why make chooses to rebuild a target. (Debug information.)
+#         -d: Displays the reasons why make chooses to rebuild a target. (Debug information.)
 #
-# 	  -n: Only print commands; do not execute.
+#         -n: Only print commands; do not execute.
 #
-# 	  -f: Specify a Makefile to use.
+#         -f: Specify a Makefile to use.
 #
 __END_USAGE__
 use Getopt::Std;
@@ -37,175 +37,127 @@ $filename = $OPTIONS{'f'} if $OPTIONS{'f'};
 my $myTarget = "";
 $myTarget = $ARGV[0] if $ARGV[0];
 
-# Need perl command-line argument variables to get a filename.
-# Set flags based on command-line flags.
-open my $file, "<$filename" or die "$0:$filename:$!\n";
 my %macro_hash = ();
-my @macro_list = ();
 my %target_hash = ();
 my @has_pre = ();
 my %cmd_hash = ();
-my $target = ();
-#my $line = ();
+my $previous_target = "";
+
+# Need perl command-line argument variables to get a filename.
+# Set flags based on command-line flags.
+open my $file, "<$filename" or die "$0:$filename:$!\n";
 while (my $line = <$file>){
-	chomp($line);
-# Do stuff with the line.
-
-#Checks to see if the line is a macro. If it is macro, it adds it to the macro
-#hash
-   if ($line !~ /#.+/){
-   if ($line =~ /\s*(\S+)\s*=\s+(.+)/){
-        my($macro) = $1;
-        my($value) = $2;
-		  #die "Macro $1 assigned to null string!" if ($2 == undef);
-        my @value_split = ();
-        @value_split = split(" ", $value);
-        $macro_hash{$macro} = [@value_split];
-        push (@macro_list, $1);
-        my @test = @{$macro_hash{$macro}};
-    }
-#Checks to see if the line is a target. If it is, it adds it to the target
-#hash
-    elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
-    	$target = $1;
-		if ($myTarget eq "") { $myTarget = $target;}
-    	if($line =~ /.+:\s+(.+)/){
-            my @value_split = ();
-            @value_split = split(" ", $1);
-    	      $target_hash{$target} = [@value_split];
-            push(@has_pre,$target);
-    	}
-    	else {
-            $target_hash{$target} = "";
-        }
-    }
-#Checks to see if the line is a command. If it is, it adds it to the cmd list
-    elsif ($line =~ /\t\s*(.+)/){
-        my($cmd) = $1;
-        my @value_split = ();
-        if (exists $cmd_hash{$target}){
-            @value_split = split(" ",$cmd);
-            push(@{$cmd_hash{$target}}, @value_split);
-        }else{
-            $cmd_hash{$target} = ();
-            @value_split = split(" ",$cmd);
-            push(@{$cmd_hash{$target}}, @value_split);
-				push(@{$cmd_hash{$target}}, ';');
-        }
-    }
-  }
+    chomp($line);
+    $previous_target = &check_line($line,\%macro_hash,\%target_hash,\%cmd_hash,\                                   $previous_target);
 }
-#Replaces all of the macros with their definitions. The previous macros are
-#used to do this
-my @macro_back = reverse(@macro_list);
-foreach my $myMacro (@macro_list){
-        my @check_list = @{$macro_hash{$myMacro}};
-        my $done_string = "";
-        for (my $count = 0; $count < @check_list; $count++){
-            my $value = $check_list[$count];
-            my $replace_string = "";
-            if ($value =~ /\$\{([^\}]+)\}/){
-                my @replace_list = @{$macro_hash{$1}};
-                foreach my $str (@replace_list){
-                    $replace_string = $replace_string . $str . " ";
-                }
-                chop($replace_string);
-                $check_list[$count] = $replace_string;
-            }
-       }
-       $macro_hash{$myMacro} = [@check_list];
-}
-#Takes the lists from the macro hash and converts them to strings. This is done
-#so we can easily call them from the command line
-foreach my $myMacro (@macro_list){
+foreach my $myMacro (keys %macro_hash){
     my @check_list = @{$macro_hash{$myMacro}};
-    my $done_string = "";
-    for(my $count = 0; $count < @check_list; $count++){
-        $done_string = $done_string . $check_list[$count] . " ";
-    }
-    $macro_hash{$myMacro} = $done_string;
+    @check_list = &replace_macro(\@check_list,\%macro_hash);
+    $macro_hash{$myMacro} = [@check_list];
 }
-#Replaces all of the macros in targets with their definitions.
-foreach my $Tar (@has_pre){
-    my @check_list = @{$target_hash{$Tar}};
-    for (my $count = 0; $count < @check_list; $count++){
-    my $value = $check_list[$count];
-    my $replace_string = "";
-    if ($value =~ /\$\{([^\}]+)\}/){
-        $replace_string = $macro_hash{$1};
-        $check_list[$count] = $replace_string;
-        }
+foreach my $array (keys %macro_hash){
+    my @print_list = @{$macro_hash{$array}};
+    print "Macro: $array ";
+    foreach my $str (@print_list){
+      print "$str ";
     }
-}
-#Converts the list the target has to strings. This is used so we can
-#easily call them from the command line
-foreach my $Tar (@has_pre){
-    my @check_list = @{$target_hash{$Tar}};
-    my $done_string = "";
-    for (my $count = 0; $count < @check_list; $count++){
-        $done_string = $done_string . $check_list[$count] . " ";
-    }
-    $target_hash{$Tar} = $done_string;
+    print "\n";
 }
 
-#Replaces all of the macros in commands with their values
-foreach my $Tar (keys %cmd_hash){
-    if (exists($cmd_hash{$Tar})){
-        my @check_list = @{$cmd_hash{$Tar}};
-        for (my $count = 0; $count < @check_list; $count++){
-            my $value = $check_list[$count];
-            my $replace_string = "";
-            if ($value =~  /\$\{([^\}]+)\}/){
-                $replace_string = $macro_hash{$1};
-                $check_list[$count] = $replace_string;
+foreach my $tar (@has_pre){
+    if ($tar =~ /\$\{([^\}]+)\}/){
+        my @replace_target = @{$macro_hash{$1}};
+        my $replace = "";
+        foreach my $str (@replace_target){$replace = $str;}
+        my @replace_list = @{$target_hash{$tar}};
+        delete $target_hash{$tar};
+        @{$target_hash{$replace}} = @replace_list;
+        $tar = $replace;
+    }
+    print "Target: $tar\n";
+    my @check_list = @{$target_hash{$tar}};
+    if (@check_list > 0){
+        @check_list = &replace_macro(\@check_list,\%macro_hash);
+        $target_hash{$tar} = [@check_list];
+    }
+}
+foreach my $array (@has_pre){
+    my @print_list = @{$target_hash{$array}};
+    print "Target: $array ";
+    foreach my $str (@print_list){
+      print "$str ";
+    }
+    print "\n";
+}
+#Checks a line for a macro, target or cmd. Places corresponding value into
+#the correct hash
+sub check_line {
+    my $line = $_[0];
+    my $macro_hash = $_[1];
+    my $target_hash = $_[2];
+    my $cmd_hash = $_[3];
+    my $previous_target = $_[4];
+
+    if ($line !~ /#.+/){
+
+        #Checks to see if line is a macro
+        #If a macro, places in the macro hash
+        if ($line =~ /\s*(\S+)\s*=\s+(.+)/){
+            my $macro = $1;
+            my $value = $2;
+            my @value_split = ();
+            @value_split = split(" ", $value);
+            $macro_hash->{$macro} = [@value_split];
+        }
+
+
+        #Checks to see if the line is a target
+        #If a target, palces in the target hash
+        elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
+            my $target = $1;
+            if ($myTarget eq "") {$myTarget = $target;}
+            $previous_target = $target;
+            if ($line =~ /.+:\s+(.+)/){
+                my @value_split = ();
+                @value_split = split(" ", $1);
+                $target_hash->{$target} = [@value_split];
+                push(@has_pre,$target);
+            }
+            else {
+                $target_hash->{$target} = "";
+            }
+        }
+
+        #Checks to see if the line is a command.
+        #If cmd, places in the cmd hash
+        elsif ($line =~ /\t\s*(.+)/){
+            my $cmd = $1;
+            my @value_split = ();
+            if (exists $cmd_hash->{$previous_target}){
+               @value_split = split( " ", $cmd);
+               push(@{$cmd_hash->{$previous_target}}, @value_split);
+            }
+            else {
+                $cmd_hash->{$previous_target} = ();
+                @value_split = split( " ", $cmd);
+                push(@{$cmd_hash->{$previous_target}}, @value_split);
+                push(@{$cmd_hash->{$previous_target}}, "\n");
             }
         }
     }
+   return $previous_target
 }
-#Converts all of the commands to strings with macro definitions complete
-foreach my $Tar (keys %cmd_hash){
-    my @check_list = @{$cmd_hash{$Tar}};
+
+sub replace_macro {
+    my @line = @{$_[0]};
+    my $macro_hash = $_[1];
     my $done_string = "";
-    for (my $count = 0; $count < @check_list; $count++){
-        $done_string = $done_string . $check_list[$count] . " ";
+    for(my $count = 0; $count < @line; $count++){
+       my $value = $line[$count];
+       if ($value =~ /\$\{([^\}]+)\}/){
+          my @replace_list = @{$macro_hash->{$1}};
+          splice @line, $count, 1, @replace_list;
+       }
     }
-    $cmd_hash{$Tar} = $done_string;
-}
-
-# Now we just have to check for target dependencies, check how new they are, run them, and then run the target.
-my $time = time;
-$time = stat($myTarget)[9] if stat($myTarget);
-check_execute($myTarget, $time); 
-sub check_execute{
-	my $Tar = $_[0];
-	my $timestamp = $_[1];
-	my %temp_hash = $target_hash{$Tar};
-	while($temp_hash{$Tar} =~ s/(\S+)\s*//){ # Find a target and remove it from the string.
-		my $prereq = $1; # The target we found.
-		if(stat($prereq)[9] > $timestamp){
-			check_execute($prereq, stat($prereq)[9]); #stat[9] is last modified time since the epoch.
-		}
-		elsif(stat($prereq)){
-			next;
-		}
-		else {
-			check_execute($prereq, $time);
-		}
-	}
-	%temp_hash = $cmd_hash{$Tar};	
-	while($temp_hash{$Tar} =~ s/(.*;)\s*//){
-		my $cmd = $1;
-		print "$cmd\n";
-		if($OPTIONS{'n'}{next;} 
-		my $return_code = system($cmd);
-		if($return_code != 0){
-			$EXITCODE = $return_code;
-			print("$0:$cmd:$!\n"); 
-			exit;
-		}
-	}
-	return 1;
-}
-
-close $file;
-exit;
+    return @line;
+} 
