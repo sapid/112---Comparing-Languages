@@ -56,14 +56,6 @@ foreach my $myMacro (keys %macro_hash){
     @check_list = &replace_macro(\@check_list,\%macro_hash);
     $macro_hash{$myMacro} = [@check_list];
 }
-foreach my $array (keys %macro_hash){
-    my @print_list = @{$macro_hash{$array}};
-    print "Macro: $array ";
-    foreach my $str (@print_list){
-      print "$str ";
-    }
-    print "\n";
-}
 
 foreach my $tar (@has_pre){
     if ($tar =~ /\$\{([^\}]+)\}/){
@@ -75,21 +67,30 @@ foreach my $tar (@has_pre){
         @{$target_hash{$replace}} = @replace_list;
         $tar = $replace;
     }
-    print "Target: $tar\n";
     my @check_list = @{$target_hash{$tar}};
     if (@check_list > 0){
         @check_list = &replace_macro(\@check_list,\%macro_hash);
         $target_hash{$tar} = [@check_list];
     }
 }
-foreach my $array (@has_pre){
-    my @print_list = @{$target_hash{$array}};
-    print "Target: $array ";
-    foreach my $str (@print_list){
-      print "$str ";
+
+foreach my $tar (keys %cmd_hash){
+    if (exists($cmd_hash{$tar})){
+        if ($tar =~ /\$\{([^\}]+)\}/){
+            my @replace_target = @{$macro_hash{$1}};
+            my $replace = "";
+            foreach my $str (@replace_target){$replace = $str;}
+            my @replace_list = @{$cmd_hash{$tar}};
+            delete $cmd_hash{$tar};
+            @{$cmd_hash{$replace}} = @replace_list;
+            $tar = $replace;
+        }
+        my @check_list = @{$cmd_hash{$tar}};
+        @check_list = &replace_macro(\@check_list,\%macro_hash);
+        $cmd_hash{$tar} = [@check_list];
     }
-    print "\n";
 }
+
 #Checks a line for a macro, target or cmd. Places corresponding value into
 #the correct hash
 sub check_line {
@@ -97,7 +98,7 @@ sub check_line {
     my $macro_hash = $_[1];
     my $target_hash = $_[2];
     my $cmd_hash = $_[3];
-    my $previous_target = $_[4];
+    my $prev_target = $_[4];
 
     if ($line !~ /#.+/){
 
@@ -117,7 +118,7 @@ sub check_line {
         elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
             my $target = $1;
             if ($myTarget eq "") {$myTarget = $target;}
-            $previous_target = $target;
+            $prev_target = $target;
             if ($line =~ /.+:\s+(.+)/){
                 my @value_split = ();
                 @value_split = split(" ", $1);
@@ -146,7 +147,7 @@ sub check_line {
             }
         }
     }
-   return $previous_target
+   return $prev_target;
 }
 
 sub replace_macro {
