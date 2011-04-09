@@ -180,8 +180,8 @@ check_execute($myTarget, $time);
 sub check_execute{
 	my $Tar = $_[0];
 	my $timestamp = $_[1];
-	my %temp_hash = $target_hash{$Tar};
-	while($temp_hash{$Tar} =~ s/(\S+)\s*//){ # Find a target and remove it from the string.
+	my $temp_hash = $target_hash{$Tar};
+	while($temp_hash =~ s/(\S+)\s*//){ # Find a target and remove it from the string.
 		my $prereq = $1; # The target we found.
 		if(stat($prereq)[9] > $timestamp){
 			check_execute($prereq, stat($prereq)[9]); #stat[9] is last modified time since the epoch.
@@ -193,8 +193,8 @@ sub check_execute{
 			check_execute($prereq, $time);
 		}
 	}
-	%temp_hash = $cmd_hash{$Tar};	
-	while($temp_hash{$Tar} =~ s/(.*;)\s*//){
+	$temp_hash = $cmd_hash{$Tar};	
+	while($temp_hash =~ s/(.*;)\s*//){
 		my $cmd = $1;
 		print "$cmd\n";
 		if($OPTIONS{'n'}{next;} 
