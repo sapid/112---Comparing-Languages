@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use POSIX qw(locale_h);
-
+my $fullname = $0;
 $0 =~ s|^(.*/)?([^/]+)/*$|$2|; # Get the basename.
 my $EXITCODE = 0;
 END { exit $EXITCODE; } # Return exit code on exit.
@@ -46,6 +46,7 @@ my %target_hash = ();
 my @has_pre = ();
 my %cmd_hash = ();
 my $target = ();
+$macro_hash{'MAKE'} = $fullname;
 #my $line = ();
 while (my $line = <$file>){
 	chomp($line);
