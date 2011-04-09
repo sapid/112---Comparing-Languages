@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use POSIX qw(locale_h);
-
+my $fullname = $0;
 $0 =~ s|^(.*/)?([^/]+)/*$|$2|; # Get the basename.
 my $EXITCODE = 0;
 END { exit $EXITCODE; } # Return exit code on exit.
@@ -41,6 +41,7 @@ my %macro_hash = ();
 my %target_hash = ();
 my @has_pre = ();
 my %cmd_hash = ();
+
 my $previous_target = "";
 
 # Need perl command-line argument variables to get a filename.
