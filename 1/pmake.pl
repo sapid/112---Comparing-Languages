@@ -37,12 +37,14 @@ $filename = $OPTIONS{'f'} if $OPTIONS{'f'};
 my $myTarget = "";
 $myTarget = $ARGV[0] if $ARGV[0];
 
-my %macro_hash = ();
+my %macro_hash= ();
 my %target_hash = ();
 my @has_pre = ();
 my %cmd_hash = ();
 
 my $previous_target = "";
+my $include;
+my $include_string;
 
 # Need perl command-line argument variables to get a filename.
 # Set flags based on command-line flags.
@@ -91,6 +93,19 @@ foreach my $tar (keys %cmd_hash){
     }
 }
 
+if ($include){
+    my $finish = "";
+    my @include_split = split(" ",$include_string);
+    @include_split = &replace_macro(\@include_split,\%macro_hash);
+    foreach my $key (keys %target_hash){
+        print "Key: $key\n";
+    }
+    my @cmd_list = @{$cmd_hash{"deps"}};
+    print @cmd_list;
+    foreach my $cmd (@cmd_list){
+        print "$cmd";    
+    }
+}
 #Checks a line for a macro, target or cmd. Places corresponding value into
 #the correct hash
 sub check_line {
@@ -146,7 +161,15 @@ sub check_line {
                 push(@{$cmd_hash->{$previous_target}}, "\n");
             }
         }
+
+        #Checks to see if the line is an include
+        #If include, sets include string = to that line, and sets include = 1
+        elsif ($line =~ /\s*include.+/) {
+            $include = 1;
+            $include_string = $line;
+        }
     }
+   print "Previous: $previous_target\n";
    return $prev_target;
 }
 
@@ -157,9 +180,15 @@ sub replace_macro {
     for(my $count = 0; $count < @line; $count++){
        my $value = $line[$count];
        if ($value =~ /\$\{([^\}]+)\}/){
-          my @replace_list = @{$macro_hash->{$1}};
-          splice @line, $count, 1, @replace_list;
+          if ($1 eq "MAKE"){
+              my @make_list = ("pmake");
+              splice @line, $count, 1, @make_list;
+          }
+          else{
+              my @replace_list = @{$macro_hash->{$1}};
+              splice @line, $count, 1, @replace_list;
+          }
        }
     }
     return @line;
-} 
+}
