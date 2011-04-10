@@ -95,9 +95,9 @@ if ($include){
     my $finish = "";
     my @include_split = split(" ",$include_string);
     @include_split = &replace_macro(\@include_split,\%macro_hash);
-    my @cmd_list = @{$cmd_hash{"deps"}};
+    my @cmd_list = @{$cmd_hash{$include_split[1]}};
     foreach my $cmd (@cmd_list){
-        print "$cmd ";    
+        print "$cmd \n";    
     }
 }
 #Checks a line for a macro, target or cmd. Places corresponding value into
@@ -158,7 +158,7 @@ sub check_line {
 
         #Checks to see if the line is an include
         #If include, sets include string = to that line, and sets include = 1
-        elsif ($line =~ /\s*include.+/) {
+        elsif ($line =~ /^\s*include.+/) {
             $include = 1;
             $include_string = $line;
         }
