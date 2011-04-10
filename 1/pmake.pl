@@ -129,7 +129,7 @@ sub check_line {
 
 
         #Checks to see if the line is a target
-        #If a target, palces in the target hash
+        #If a target, places in the target hash
         elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
             my $target = $1;
             if ($myTarget eq "") {$myTarget = $target;}
