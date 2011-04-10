@@ -52,7 +52,6 @@ open my $file, "<$filename" or die "$0:$filename:$!\n";
 while (my $line = <$file>){
     chomp($line);
     $previous_target = &check_line($line,\%macro_hash,\%target_hash,\%cmd_hash,\                                   \$previous_target);
-    print "Returned: $previous_target\n";
 }
 foreach my $myMacro (keys %macro_hash){
     my @check_list = @{$macro_hash{$myMacro}};
@@ -130,7 +129,6 @@ sub check_line {
         #If a target, places in the target hash
         elsif ($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
             my $target = $1;
-            print "found target: $1\n";
             if ($myTarget eq "") {$myTarget = $target;}
             $previous_target = $target;
             if ($line =~ /.+:\s+(.+)/){
@@ -149,7 +147,6 @@ sub check_line {
         elsif ($line =~ /\t\s*(.+)/){
             my $cmd = $1;
             my @value_split = ();
-            print "USING: $previous_target\n";
             if (exists $cmd_hash->{$previous_target}){
                @value_split = split( " ", $cmd);
                push(@{$cmd_hash->{$previous_target}}, @value_split);
@@ -169,7 +166,6 @@ sub check_line {
             $include_string = $line;
         }
     }
-   print "Previous: $previous_target\n";
    return $previous_target;
 }
 
