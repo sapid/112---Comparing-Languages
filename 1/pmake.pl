@@ -98,9 +98,9 @@ if ($include){
     my @include_split = split(" ",$include_string);
     @include_split = &replace_macro(\@include_split,\%macro_hash);
     my @cmd_list = @{$cmd_hash{"deps"}};
-    print "@cmd_list ";
+    print "@cmd_list";
     foreach my $cmd (@cmd_list){
-        print "$cmd ";    
+        print "$cmd";    
     }
 }
 #Checks a line for a macro, target or cmd. Places corresponding value into
@@ -112,7 +112,7 @@ sub check_line {
     my $cmd_hash = $_[3];
     my $prev_target = $_[4];
 
-    if ($line !~ /#.+/){
+    if ($line !~ /^#.+/){
 
         #Checks to see if line is a macro
         #If a macro, places in the macro hash
