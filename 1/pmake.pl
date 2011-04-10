@@ -97,7 +97,7 @@ if ($include){
     @include_split = &replace_macro(\@include_split,\%macro_hash);
     my @cmd_list = @{$cmd_hash{$include_split[1]}};
     foreach my $cmd (@cmd_list){
-        print "$cmd \n";    
+        print "$cmd ";    
     }
 }
 #Checks a line for a macro, target or cmd. Places corresponding value into
@@ -147,6 +147,7 @@ sub check_line {
             if (exists $cmd_hash->{$previous_target}){
                @value_split = split( " ", $cmd);
                push(@{$cmd_hash->{$previous_target}}, @value_split);
+               push(@{$cmd_hash->{$previous_target}}, "\n");
             }
             else {
                 $cmd_hash->{$previous_target} = ();
