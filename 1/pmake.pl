@@ -77,7 +77,6 @@ foreach my $tar (@has_pre){
 }
 
 foreach my $tar (keys %cmd_hash){
-    if (exists($cmd_hash{$tar})){
         if ($tar =~ /\$\{([^\}]+)\}/){
             my @replace_target = @{$macro_hash{$1}};
             my $replace = "";
@@ -90,7 +89,6 @@ foreach my $tar (keys %cmd_hash){
         my @check_list = @{$cmd_hash{$tar}};
         @check_list = &replace_macro(\@check_list,\%macro_hash);
         $cmd_hash{$tar} = [@check_list];
-    }
 }
 
 if ($include){
@@ -98,9 +96,8 @@ if ($include){
     my @include_split = split(" ",$include_string);
     @include_split = &replace_macro(\@include_split,\%macro_hash);
     my @cmd_list = @{$cmd_hash{"deps"}};
-    print "@cmd_list";
     foreach my $cmd (@cmd_list){
-        print "$cmd";    
+        print "$cmd ";    
     }
 }
 #Checks a line for a macro, target or cmd. Places corresponding value into
@@ -175,7 +172,21 @@ sub replace_macro {
     my $done_string = "";
     for(my $count = 0; $count < @line; $count++){
        my $value = $line[$count];
-       if ($value =~ /\$\{([^\}]+)\}/){
+		 if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
+			 my $pre = $1;
+			 my $post = $3;
+          if ($2 eq "MAKE"){
+              my @make_list = ("pmake");
+              splice @line, $count, 1, @make_list;
+          }
+          else{
+              my @replace_list = @{$macro_hash->{$2}};
+				  $replace_list[0] = $pre . $replace_list[0] if $pre;
+				  $replace_list[-1] = $replace_list[-1] . $post if $post;
+              splice @line, $count, 1, @replace_list;
+          }
+		 }
+       elsif ($value =~ /\$\{([^\}]+)\}/){
           if ($1 eq "MAKE"){
               my @make_list = ("pmake");
               splice @line, $count, 1, @make_list;
