@@ -91,14 +91,65 @@ foreach my $tar (keys %cmd_hash){
         $cmd_hash{$tar} = [@check_list];
 }
 
-if ($include){
-    my $finish = "";
-    my @include_split = split(" ",$include_string);
-    @include_split = &replace_macro(\@include_split,\%macro_hash);
-    my @cmd_list = @{$cmd_hash{$include_split[1]}};
-    foreach my $cmd (@cmd_list){
-        print "$cmd ";    
+&depend_tree();
+
+#if ($include){
+#    my $finish = "";
+#    my @include_split = split(" ",$include_string);
+#    @include_split = &replace_macro(\@include_split,\%macro_hash);
+#    my @cmd_list = @{$cmd_hash{$include_split[1]}};
+#    my $cmd_string = "";
+#    foreach my $cmd (@cmd_list){
+#        if ($cmd ne "\n"){
+#            $cmd_string = $cmd_string . $cmd . " ";
+#        }
+#        elsif ($cmd eq "\n"){
+#            $cmd_string =~ s/\s+$//;
+#            system($cmd_string);
+#            if ($? > 0){
+#                my @cmd_list = split(" ",$cmd_string);
+#                $EXITCODE = $?;
+#                die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
+#            }
+#            $cmd_string = "";
+#        }
+#    }
+#}
+
+sub percent {
+    my $exists;
+    my $percent = "";
+
+    foreach my $tar (keys %target_hash){
+        if ($tar =~ /^%(.+)/){
+            $exists = 1;
+            $percent = $1;
+        }
     }
+
+    if ($exists) {
+        foreach my $macro (keys %macro_hash){
+            my @value_list = @{$macro_hash{$macro}};
+            foreach my $value (@value_list){
+                if ($value =~ /((\w*)($percent)$)/){
+                    $value =~ s/(.*)\..*/$1/;
+                    my $target = $value . $percent;
+                    my $get =  "%" . $percent;
+                    my @pre_req = @{$target_hash{$get}};
+                    $pre_req[0] =~ s/^.//;
+                    $pre_req[0] = $value . $pre_req[0];
+                    my @command = @{$cmd_hash{$get}};
+                    foreach my $str (@command){
+                        $str =~ s/\$\</$pre_req[0]/;
+                    }
+                    $target_hash{$target} = @pre_req;
+                    $cmd_hash{$target} = [@command];
+                }
+            }
+        }
+
+    }
+
 }
 #Checks a line for a macro, target or cmd. Places corresponding value into
 #the correct hash
