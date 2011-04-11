@@ -91,8 +91,38 @@ foreach my $tar (keys %cmd_hash){
         $cmd_hash{$tar} = [@check_list];
 }
 
-&depend_tree();
+&percent();
 
+#&execute();
+my @pre_total = ($myTarget);
+my $has_tar = grep /$myTarget/, @has_pre;
+if ($has_tar){
+    my @start_pre = @{$target_hash{$myTarget}};
+    &get_pre(\@start_pre);
+}
+
+foreach my $exe (@pre_total){
+    if (exists $cmd_hash{$exe}){
+        my @cmd_list = @{$cmd_hash{$exe}};
+        my $cmd_string = "";
+        foreach my $cmd (@cmd_list){
+            if ($cmd ne "\n" and $cmd ne "-"){
+                $cmd_string = $cmd_string . $cmd . " ";
+            }
+            elsif ($cmd eq "\n"){
+                $cmd_string =~ s/\s+$//;
+                print "$cmd_string\n";
+                system($cmd_string);
+                if ($? > 0){
+                    my @cmd_list = split(" ",$cmd_string);
+                    $EXITCODE = $?;
+                    die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
+                }
+                $cmd_string = "";
+            }
+        }
+    }
+}
 #if ($include){
 #    my $finish = "";
 #    my @include_split = split(" ",$include_string);
@@ -116,6 +146,26 @@ foreach my $tar (keys %cmd_hash){
 #    }
 #}
 
+sub execute {
+    print "target: $myTarget\n";
+    my @pre = @{$target_hash{$myTarget}};
+    foreach my $value (@pre){
+        print "$value ";
+    }
+
+}
+
+sub get_pre {
+    my @pre_list = @{$_[0]};
+    foreach my $tar (@pre_list){
+        my $has_tar = grep /$tar/, @has_pre;
+        if ($has_tar){
+            my @pass_pre = @{$target_hash{$tar}};
+            &get_pre(\@pass_pre);
+        }
+        push(@pre_total, $tar);
+    }
+}
 sub percent {
     my $exists;
     my $percent = "";
@@ -224,17 +274,17 @@ sub replace_macro {
     my $done_string = "";
     for(my $count = 0; $count < @line; $count++){
        my $value = $line[$count];
-		 if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
-			 my $pre = $1;
-			 my $post = $3;
+       if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
+	  my $pre = $1;
+	  my $post = $3;
           if ($2 eq "MAKE"){
               my @make_list = ("pmake");
               splice @line, $count, 1, @make_list;
           }
           else{
               my @replace_list = @{$macro_hash->{$2}};
-				  $replace_list[0] = $pre . $replace_list[0] if $pre;
-				  $replace_list[-1] = $replace_list[-1] . $post if $post;
+	      $replace_list[0] = $pre . $replace_list[0] if $pre;
+	      $replace_list[-1] = $replace_list[-1] . $post if $post;
               splice @line, $count, 1, @replace_list;
           }
 		 }
