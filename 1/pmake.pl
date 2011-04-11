@@ -94,15 +94,15 @@ foreach my $tar (keys %cmd_hash){
 &percent();
 
 #&execute();
-my @pre_total = ($myTarget);
+my @pre_total = ($myTarget); # Doesn't this make us try to build the target first? The target should be built last.
 my $has_tar = grep /$myTarget/, @has_pre;
 if ($has_tar){
     my @start_pre = @{$target_hash{$myTarget}};
     &get_pre(\@start_pre);
 }
 
-foreach my $exe (@pre_total){
-    if (exists $cmd_hash{$exe}){
+foreach my $exe (@pre_total){ # For each build target we have identified...
+    if (exists $cmd_hash{$exe}){ # If there are commands associated with it...
         my @cmd_list = @{$cmd_hash{$exe}};
         my $cmd_string = "";
         foreach my $cmd (@cmd_list){
@@ -110,10 +110,10 @@ foreach my $exe (@pre_total){
                 $cmd_string = $cmd_string . $cmd . " ";
             }
             elsif ($cmd eq "\n"){
-                $cmd_string =~ s/\s+$//;
+                $cmd_string =~ s/\s+$//; # Remove any whitespace before the end of the line.
                 print "$cmd_string\n";
-                system($cmd_string);
-                if ($? > 0){
+                system($cmd_string); # Run the command here.
+                if ($? > 0){ # Check if the command failed.
                     my @cmd_list = split(" ",$cmd_string);
                     $EXITCODE = $?;
                     die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
@@ -150,22 +150,23 @@ sub execute {
     print "target: $myTarget\n";
     my @pre = @{$target_hash{$myTarget}};
     foreach my $value (@pre){
-        print "$value ";
+         print "$value ";
     }
 
 }
-
+# This function fetches the prerequisites for the target passed into it.
 sub get_pre {
     my @pre_list = @{$_[0]};
     foreach my $tar (@pre_list){
-        my $has_tar = grep /$tar/, @has_pre;
+        my $has_tar = grep /$tar/, @has_pre; # Does this target have prerequisites?
         if ($has_tar){
             my @pass_pre = @{$target_hash{$tar}};
-            &get_pre(\@pass_pre);
+            &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
         }
         push(@pre_total, $tar);
     }
 }
+
 sub percent {
     my $exists;
     my $percent = "";
@@ -233,7 +234,7 @@ sub check_line {
                 my @value_split = ();
                 @value_split = split(" ", $1);
                 $target_hash->{$target} = [@value_split];
-                push(@has_pre,$target);
+                push(@has_pre,$target); # @has_pre is loaded with targets that have prereqs.
             }
             else {
                 $target_hash->{$target} = "";
