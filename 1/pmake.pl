@@ -161,13 +161,11 @@ sub get_pre {
     my @pre_list = @{$_[0]};
     my $timestamp = $_[1];
     foreach my $tar (@pre_list){
+        my $pre_time = (stat($tar))[9];
         my $has_tar = grep /$tar/, @has_pre; # Does this target have prerequisites?
         if ($has_tar){
-            my $pre_time = (stat($tar))[9];
-            if ($pre_time and $timestamp < $pre_time){
-               my @pass_pre = @{$target_hash{$tar}};
-               &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
-            }
+           my @pass_pre = @{$target_hash{$tar}};
+           &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
         }
         if($pre_time and $pre_time > $timestamp){
            push(@pre_total, $tar);
