@@ -169,10 +169,13 @@ sub get_pre {
                &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
             }
         }
-        if($pretime){
-         
+        if($pre_time and $pre_time > $timestamp){
+           push(@pre_total, $tar);
         }
-        push(@pre_total, $tar);
+        elsif($pre_time){ }
+        else{
+           push(@pre_total, $tar);
+        }
     }
 }
 
