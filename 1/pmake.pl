@@ -154,7 +154,7 @@ elsif (!$has_tar){
         }
     }
 }
-if ($include){
+if ($include && !(stat Makefile.deps)){
     my $finish = "";
     my @include_split = split(" ",$include_string);
     @include_split = &replace_macro(\@include_split,\%macro_hash);
