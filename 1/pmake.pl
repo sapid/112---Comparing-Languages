@@ -159,15 +159,18 @@ sub execute {
 # This function fetches the prerequisites for the target passed into it.
 sub get_pre {
     my @pre_list = @{$_[0]};
-	 my $timestamp = $_[1];
+    my $timestamp = $_[1];
     foreach my $tar (@pre_list){
         my $has_tar = grep /$tar/, @has_pre; # Does this target have prerequisites?
         if ($has_tar){
-		  		my $pre_time = (stat($tar))[9];
-				if ($pre_time and $timestamp < $pre_time){
-            	my @pass_pre = @{$target_hash{$tar}};
-            	&get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
-				}
+            my $pre_time = (stat($tar))[9];
+            if ($pre_time and $timestamp < $pre_time){
+               my @pass_pre = @{$target_hash{$tar}};
+               &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
+            }
+        }
+        if($pretime){
+         
         }
         push(@pre_total, $tar);
     }
@@ -282,19 +285,19 @@ sub replace_macro {
     for(my $count = 0; $count < @line; $count++){
        my $value = $line[$count];
        if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
-	  my $pre = $1;
-	  my $post = $3;
+     my $pre = $1;
+     my $post = $3;
           if ($2 eq "MAKE"){
               my @make_list = ("pmake");
               splice @line, $count, 1, @make_list;
           }
           else{
               my @replace_list = @{$macro_hash->{$2}};
-	      $replace_list[0] = $pre . $replace_list[0] if $pre;
-	      $replace_list[-1] = $replace_list[-1] . $post if $post;
+         $replace_list[0] = $pre . $replace_list[0] if $pre;
+         $replace_list[-1] = $replace_list[-1] . $post if $post;
               splice @line, $count, 1, @replace_list;
           }
-		 }
+       }
        elsif ($value =~ /\$\{([^\}]+)\}/){
           if ($1 eq "MAKE"){
               my @make_list = ("pmake");
