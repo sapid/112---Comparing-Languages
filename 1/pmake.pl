@@ -154,37 +154,33 @@ elsif (!$has_tar){
         }
     }
 }
-#if ($include){
-#    my $finish = "";
-#    my @include_split = split(" ",$include_string);
-#    @include_split = &replace_macro(\@include_split,\%macro_hash);
-#    my @cmd_list = @{$cmd_hash{$include_split[1]}};
-#    my $cmd_string = "";
-#    foreach my $cmd (@cmd_list){
-#        if ($cmd ne "\n"){
-#            $cmd_string = $cmd_string . $cmd . " ";
-#        }
-#        elsif ($cmd eq "\n"){
-#            $cmd_string =~ s/\s+$//;
-#            system($cmd_string);
-#            if ($? > 0){
-#                my @cmd_list = split(" ",$cmd_string);
-#                $EXITCODE = $?;
-#                die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
-#            }
-#            $cmd_string = "";
-#        }
-#    }
-#}
-
-sub execute {
-    print "target: $myTarget\n";
-    my @pre = @{$target_hash{$myTarget}};
-    foreach my $value (@pre){
-         print "$value ";
+if ($include){
+    my $finish = "";
+    my @include_split = split(" ",$include_string);
+    @include_split = &replace_macro(\@include_split,\%macro_hash);
+    my @cmd_list = @{$cmd_hash{$include_split[1]}};
+    my $cmd_string = "";
+    foreach my $cmd (@cmd_list){
+        if ($cmd ne "\n"){
+            $cmd_string = $cmd_string . $cmd . " ";
+        }
+        elsif ($cmd eq "\n"){
+            $cmd_string =~ s/\s+$//;
+            $cmd_string =~ s/@ \(//;
+            $cmd_string =~ s/[;]/>Makefile.deps/;
+            $cmd_string =~ s/\\//;
+            $cmd_string =~ s/\)//;
+            system($cmd_string);
+            if ($? > 0){
+                my @cmd_list = split(" ",$cmd_string);
+                $EXITCODE = $?;
+                die "$cmd_list[0] returned exit code $EXITCODE:$!\n";
+            }
+            $cmd_string = "";
+        }
     }
-
 }
+
 # This function fetches the prerequisites for the target passed into it.
 sub get_pre {
     my @pre_list = @{$_[0]};
@@ -322,12 +318,14 @@ sub replace_macro {
      my $post = $3;
           if ($2 eq "MAKE"){
               my @make_list = ("pmake");
+              $make_list[0] = $pre . $make_list[0] if $pre;
+              $make_list[-1] = $make_list[-1] . $post if $post;
               splice @line, $count, 1, @make_list;
           }
           else{
               my @replace_list = @{$macro_hash->{$2}};
-         $replace_list[0] = $pre . $replace_list[0] if $pre;
-         $replace_list[-1] = $replace_list[-1] . $post if $post;
+              $replace_list[0] = $pre . $replace_list[0] if $pre;
+              $replace_list[-1] = $replace_list[-1] . $post if $post;
               splice @line, $count, 1, @replace_list;
           }
        }
