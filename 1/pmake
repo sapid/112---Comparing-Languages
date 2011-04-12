@@ -95,61 +95,31 @@ foreach my $tar (keys %cmd_hash){
 
 #&execute();
 my @pre_total = ($myTarget); # Doesn't this make us try to build the target first? The target should be built last.
-my $time = 0;
-$time = (stat($myTarget))[9] if stat $myTarget;
 my $has_tar = grep /$myTarget/, @has_pre;
-if ($time == 0 and $has_tar){
-    my @list_test = @{$target_hash{$myTarget}};
-    $time = (stat($list_test[0]))[9];
-}
 if ($has_tar){
     my @start_pre = @{$target_hash{$myTarget}};
-    &get_pre(\@start_pre, $time);
+    &get_pre(\@start_pre);
 }
-if (@pre_total > 1) {
-    foreach my $exe (@pre_total){ # For each build target we have identified...
-        if (exists $cmd_hash{$exe}){ # If there are commands associated with it...
-            my @cmd_list = @{$cmd_hash{$exe}};
-            my $cmd_string = "";
-            foreach my $cmd (@cmd_list){
-                if ($cmd ne "\n" and $cmd ne "-"){
-                    $cmd_string = $cmd_string . $cmd . " ";
-                 }
-                elsif ($cmd eq "\n"){
-                    $cmd_string =~ s/\s+$//; # Remove any whitespace before the end of the line.
-                    print "$cmd_string\n";
-                    system($cmd_string); # Run the command here.
-                    if ($? > 0){ # Check if the command failed.
-                        my @cmd_list = split(" ",$cmd_string);
-                        $EXITCODE = $?;
-                        die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
-                    }
-                    $cmd_string = "";
-                }
+
+#@pre_total = reverse(@pre_total);
+foreach my $exe (@pre_total){ # For each build target we have identified...
+    if (exists $cmd_hash{$exe}){ # If there are commands associated with it...
+        my @cmd_list = @{$cmd_hash{$exe}};
+        my $cmd_string = "";
+        foreach my $cmd (@cmd_list){
+            if ($cmd ne "\n" and $cmd ne "-"){
+                $cmd_string = $cmd_string . $cmd . " ";
             }
-        }
-    }
-}
-elsif (!$has_tar){
- foreach my $exe (@pre_total){ # For each build target we have identified...
-        if (exists $cmd_hash{$exe}){ # If there are commands associated with it...
-            my @cmd_list = @{$cmd_hash{$exe}};
-            my $cmd_string = "";
-            foreach my $cmd (@cmd_list){
-                if ($cmd ne "\n" and $cmd ne "-"){
-                    $cmd_string = $cmd_string . $cmd . " ";
-                 }
-                elsif ($cmd eq "\n"){
-                    $cmd_string =~ s/\s+$//; # Remove any whitespace before the end of the line.
-                    print "$cmd_string\n";
-                    system($cmd_string); # Run the command here.
-                    if ($? > 0){ # Check if the command failed.
-                        my @cmd_list = split(" ",$cmd_string);
-                        $EXITCODE = $?;
-                        die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
-                    }
-                    $cmd_string = "";
+            elsif ($cmd eq "\n"){
+                $cmd_string =~ s/\s+$//; # Remove any whitespace before the end of the line.
+                print "$cmd_string\n";
+                system($cmd_string); # Run the command here.
+                if ($? > 0){ # Check if the command failed.
+                    my @cmd_list = split(" ",$cmd_string);
+                    $EXITCODE = $?;
+                    die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
                 }
+                $cmd_string = "";
             }
         }
     }
@@ -188,24 +158,13 @@ sub execute {
 # This function fetches the prerequisites for the target passed into it.
 sub get_pre {
     my @pre_list = @{$_[0]};
-    my $timestamp = $_[1];
     foreach my $tar (@pre_list){
-        my $pre_time = (stat($tar))[9];
         my $has_tar = grep /$tar/, @has_pre; # Does this target have prerequisites?
         if ($has_tar){
-           my @pass_pre = @{$target_hash{$tar}};
-           &get_pre(\@pass_pre,$pre_time); # Recursively get the prereqs for this prereq.
+            my @pass_pre = @{$target_hash{$tar}};
+            &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
         }
-        if($pre_time and $pre_time > $timestamp){
-           print "Newer!i $tar\n";
-           print "Passed: $timestamp.  Compare: $pre_time\n";
-           push(@pre_total, $tar);
-        }
-        elsif($pre_time){print "boobs\n"; }
-        else{
-           print "Doesnt exist! $tar\n";
-           push(@pre_total, $tar);
-        }
+        push(@pre_total, $tar);
     }
 }
 
@@ -318,19 +277,19 @@ sub replace_macro {
     for(my $count = 0; $count < @line; $count++){
        my $value = $line[$count];
        if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
-     my $pre = $1;
-     my $post = $3;
+	  my $pre = $1;
+	  my $post = $3;
           if ($2 eq "MAKE"){
               my @make_list = ("pmake");
               splice @line, $count, 1, @make_list;
           }
           else{
               my @replace_list = @{$macro_hash->{$2}};
-         $replace_list[0] = $pre . $replace_list[0] if $pre;
-         $replace_list[-1] = $replace_list[-1] . $post if $post;
+	      $replace_list[0] = $pre . $replace_list[0] if $pre;
+	      $replace_list[-1] = $replace_list[-1] . $post if $post;
               splice @line, $count, 1, @replace_list;
           }
-       }
+		 }
        elsif ($value =~ /\$\{([^\}]+)\}/){
           if ($1 eq "MAKE"){
               my @make_list = ("pmake");
