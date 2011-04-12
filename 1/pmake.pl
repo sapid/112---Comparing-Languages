@@ -95,10 +95,12 @@ foreach my $tar (keys %cmd_hash){
 
 #&execute();
 my @pre_total = ($myTarget); # Doesn't this make us try to build the target first? The target should be built last.
+my $time = 0;
+$time = (stat($myTarget))[9] if stat $myTarget;
 my $has_tar = grep /$myTarget/, @has_pre;
 if ($has_tar){
     my @start_pre = @{$target_hash{$myTarget}};
-    &get_pre(\@start_pre);
+    &get_pre(\@start_pre, $time);
 }
 
 foreach my $exe (@pre_total){ # For each build target we have identified...
@@ -157,11 +159,15 @@ sub execute {
 # This function fetches the prerequisites for the target passed into it.
 sub get_pre {
     my @pre_list = @{$_[0]};
+	 my $timestamp = $_[1];
     foreach my $tar (@pre_list){
         my $has_tar = grep /$tar/, @has_pre; # Does this target have prerequisites?
         if ($has_tar){
-            my @pass_pre = @{$target_hash{$tar}};
-            &get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
+		  		my $pre_time = (stat($tar))[9];
+				if ($pre_time and $timestamp < $pre_time){
+            	my @pass_pre = @{$target_hash{$tar}};
+            	&get_pre(\@pass_pre); # Recursively get the prereqs for this prereq.
+				}
         }
         push(@pre_total, $tar);
     }
