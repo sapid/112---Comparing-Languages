@@ -1,0 +1,43 @@
+;;File: 30-input-pi.sb
+;;   1: # $Id: 30-input-pi.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: #
+;;   3: 
+;;   4: 	let pi = 4 * atan(1)
+;;   5: 
+;;   6: 	print "RE: House Bill 246, Indiana State Legislature, 1897"
+;;   7: 	print "Enter 1 if it has passed and 0 if not."
+;;   8: 
+;;   9: 	input tennessee
+;;  10: 	if tennessee = 0 goto prt
+;;  11: 	let pi = 3 
+;;  12: prt:	print "pi = ", pi
+;;  13: 
+;;  14: # Print some random junk to exercise the interpreter.
+;;  15: 
+;;  16: 	print
+;;  17: 	print
+;;  18: 	print .333333333333333333333333333333333333333333
+;;  19: 	let avogadro = 6.02e23
+;;  20: 	print avogadro
+(
+(    1          )
+(    2          )
+(    3          )
+(    4          (let pi (* 4 (atan 1))))
+(    5          )
+(    6          (print "RE: House Bill 246, Indiana State Legislature, 1897"))
+(    7          (print "Enter 1 if it has passed and 0 if not."))
+(    8          )
+(    9          (input tennessee))
+(   10          (if (= tennessee 0) prt))
+(   11          (let pi 3))
+(   12 prt      (print "pi = " pi))
+(   13          )
+(   14          )
+(   15          )
+(   16          (print))
+(   17          (print))
+(   18          (print 0.333333333333333))
+(   19          (let avogadro 6.02e+23))
+(   20          (print avogadro))
+)

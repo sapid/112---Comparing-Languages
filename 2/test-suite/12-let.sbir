@@ -1,0 +1,21 @@
+;;File: 12-let.sb
+;;   1: # $Id: 12-let.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: 
+;;   3: # Simple let without expressions.
+;;   4: 
+;;   5: 	let i = 6
+;;   6: 	print i
+;;   7: 	dim a(10)
+;;   8: 	let a(i) = 9
+;;   9: 	print a(i)
+(
+(    1          )
+(    2          )
+(    3          )
+(    4          )
+(    5          (let i 6))
+(    6          (print i))
+(    7          (dim (a 10)))
+(    8          (let (a i) 9))
+(    9          (print (a i)))
+)

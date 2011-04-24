@@ -1,0 +1,89 @@
+;;File: 40-sort-array.sb
+;;   1: # $Id: 40-sort-array.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: #
+;;   3: # sort numbers
+;;   4: #
+;;   5: # Input is a sequence of numbers ending with end of file.
+;;   6: # User is assumed to have not more than 100 numbers.
+;;   7: #
+;;   8: 	let size = 100
+;;   9: 	dim a( size )
+;;  10: 	let max = 0
+;;  11: read:	input x
+;;  12: 	if inputcount = -1 goto eof
+;;  13: 	if inputcount < 1 goto error
+;;  14: 	let max = max + 1
+;;  15: 	let a( max ) = x
+;;  16: 	if max < size goto read
+;;  17: eof:
+;;  18: 	print ""
+;;  19: 	print "unsorted"
+;;  20: 	let i = 1
+;;  21: prtlp:	print "a(", i, ")=", a( i )
+;;  22: 	let i = i + 1
+;;  23: 	if i <= max goto prtlp
+;;  24: 	let i = max
+;;  25: outer:	let j = 1 
+;;  26: inner:	if a(j) <= a(j + 1 ) goto noswap
+;;  27: 	let t = a(j)
+;;  28: 	let a(j) = a(j+1)
+;;  29: 	let a(j+1)=t
+;;  30: noswap:
+;;  31: 	let j = j + 1
+;;  32: 	if j <= i - 1 goto inner
+;;  33: 	let i = i - 1
+;;  34: 	if i >= 2 goto outer
+;;  35: 	print ""
+;;  36: 	print "sorted"
+;;  37: 	let i = 1
+;;  38: sortlp:	print "a(", i, ")=", a( i )
+;;  39: 	let i = i + 1
+;;  40: 	if i <= max goto sortlp
+;;  41: 	goto stop
+;;  42: error:	print "Invalid input"
+;;  43: stop:
+(
+(    1          )
+(    2          )
+(    3          )
+(    4          )
+(    5          )
+(    6          )
+(    7          )
+(    8          (let size 100))
+(    9          (dim (a size)))
+(   10          (let max 0))
+(   11 read     (input x))
+(   12          (if (= inputcount (- 1)) eof))
+(   13          (if (< inputcount 1) error))
+(   14          (let max (+ max 1)))
+(   15          (let (a max) x))
+(   16          (if (< max size) read))
+(   17 eof      )
+(   18          (print ""))
+(   19          (print "unsorted"))
+(   20          (let i 1))
+(   21 prtlp    (print "a(" i ")=" (a i)))
+(   22          (let i (+ i 1)))
+(   23          (if (<= i max) prtlp))
+(   24          (let i max))
+(   25 outer    (let j 1))
+(   26 inner    (if (<= (a j) (a (+ j 1))) noswap))
+(   27          (let t (a j)))
+(   28          (let (a j) (a (+ j 1))))
+(   29          (let (a (+ j 1)) t))
+(   30 noswap   )
+(   31          (let j (+ j 1)))
+(   32          (if (<= j (- i 1)) inner))
+(   33          (let i (- i 1)))
+(   34          (if (>= i 2) outer))
+(   35          (print ""))
+(   36          (print "sorted"))
+(   37          (let i 1))
+(   38 sortlp   (print "a(" i ")=" (a i)))
+(   39          (let i (+ i 1)))
+(   40          (if (<= i max) sortlp))
+(   41          (goto stop))
+(   42 error    (print "Invalid input"))
+(   43 stop     )
+)

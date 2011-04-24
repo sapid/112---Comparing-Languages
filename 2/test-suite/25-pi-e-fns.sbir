@@ -1,0 +1,47 @@
+;;File: 25-pi-e-fns.sb
+;;   1: # $Id: 25-pi-e-fns.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: 
+;;   3: print pi, e
+;;   4: let pi = 4 * atan(1)
+;;   5: let e = exp(1)
+;;   6: print "pi = ", pi
+;;   7: print "e = ", e
+;;   8: 
+;;   9: print "sqrt ( pi ) = ", sqrt ( pi )
+;;  10: print "exp  ( pi ) = ", exp  ( pi )
+;;  11: print "log  ( pi ) = ", log  ( pi )
+;;  12: print "sin  ( pi ) = ", sin  ( pi )
+;;  13: print "cos  ( pi ) = ", cos  ( pi )
+;;  14: print "tan  ( pi ) = ", tan  ( pi )
+;;  15: print "acos ( pi ) = ", acos ( pi )
+;;  16: print "asin ( pi ) = ", asin ( pi )
+;;  17: print "atan ( pi ) = ", atan ( pi )
+;;  18: print "abs  ( pi ) = ", abs  ( pi )
+;;  19: print "ceil ( pi ) = ", ceil ( pi )
+;;  20: print "floor( pi ) = ", floor( pi )
+;;  21: print "round( pi ) = ", round( pi )
+;;  22: 
+(
+(    1          )
+(    2          )
+(    3          (print pi e))
+(    4          (let pi (* 4 (atan 1))))
+(    5          (let e (exp 1)))
+(    6          (print "pi = " pi))
+(    7          (print "e = " e))
+(    8          )
+(    9          (print "sqrt ( pi ) = " (sqrt pi)))
+(   10          (print "exp  ( pi ) = " (exp pi)))
+(   11          (print "log  ( pi ) = " (log pi)))
+(   12          (print "sin  ( pi ) = " (sin pi)))
+(   13          (print "cos  ( pi ) = " (cos pi)))
+(   14          (print "tan  ( pi ) = " (tan pi)))
+(   15          (print "acos ( pi ) = " (acos pi)))
+(   16          (print "asin ( pi ) = " (asin pi)))
+(   17          (print "atan ( pi ) = " (atan pi)))
+(   18          (print "abs  ( pi ) = " (abs pi)))
+(   19          (print "ceil ( pi ) = " (ceil pi)))
+(   20          (print "floor( pi ) = " (floor pi)))
+(   21          (print "round( pi ) = " (round pi)))
+(   22          )
+)

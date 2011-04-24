@@ -1,0 +1,45 @@
+;;File: 31-big-o-.sb
+;;   1: # $Id: 31-big-o-.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: 
+;;   3: # Given the value of N1, is the following program guaranteed
+;;   4: # to terminate?  If so, what is the big-O of time for termination?
+;;   5: 
+;;   6: # Big-O
+;;   7: # C:	while(n>1)n=n&1?3*n+1:n/2;
+;;   8: # APL:	L:->Lxi1<N<-((|_N/2),3xN+1)[1=2|N]
+;;   9: 
+;;  10: 	input N1
+;;  11: 	let i = 0
+;;  12: 	let n = N1
+;;  13: while:	if n <= 1 goto done
+;;  14: 	let i = i + 1
+;;  15: 	let f = floor( n / 2 )
+;;  16: 	if n <> f * 2 goto odd
+;;  17: 	let n = f
+;;  18: 	goto while
+;;  19: odd:	let n = n * 3 + 1
+;;  20: 	goto while
+;;  21: done:	print N1, " loops ", i, " times."
+(
+(    1          )
+(    2          )
+(    3          )
+(    4          )
+(    5          )
+(    6          )
+(    7          )
+(    8          )
+(    9          )
+(   10          (input N1))
+(   11          (let i 0))
+(   12          (let n N1))
+(   13 while    (if (<= n 1) done))
+(   14          (let i (+ i 1)))
+(   15          (let f (floor (/ n 2))))
+(   16          (if (<> n (* f 2)) odd))
+(   17          (let n f))
+(   18          (goto while))
+(   19 odd      (let n (+ (* n 3) 1)))
+(   20          (goto while))
+(   21 done     (print N1 " loops " i " times."))
+)

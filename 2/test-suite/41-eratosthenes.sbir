@@ -1,0 +1,53 @@
+;;File: 41-eratosthenes.sb
+;;   1: # $Id: 41-eratosthenes.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: #
+;;   3: 	let n = 100
+;;   4: 	dim sieve(n)
+;;   5: 
+;;   6: # Assume all numbers in the sieve are prime
+;;   7: 
+;;   8: 	let i = 2
+;;   9: init:	let sieve(i) = 1
+;;  10: 	let i = i + 1
+;;  11: 	if i < n goto init
+;;  12: 
+;;  13: # Find primes and punch out their multiples.
+;;  14: 
+;;  15: 	let prime = 2
+;;  16: primes:	if sieve(prime) = 0 goto next
+;;  17: 	print prime
+;;  18: 	let i = prime * 2
+;;  19: 	goto punch
+;;  20: loop:	let sieve(i) = 0
+;;  21: 	let i = i + prime
+;;  22: punch:	if i <= n goto loop
+;;  23: 
+;;  24: next:	let prime = prime + 1
+;;  25: 	if prime <= n goto primes
+(
+(    1          )
+(    2          )
+(    3          (let n 100))
+(    4          (dim (sieve n)))
+(    5          )
+(    6          )
+(    7          )
+(    8          (let i 2))
+(    9 init     (let (sieve i) 1))
+(   10          (let i (+ i 1)))
+(   11          (if (< i n) init))
+(   12          )
+(   13          )
+(   14          )
+(   15          (let prime 2))
+(   16 primes   (if (= (sieve prime) 0) next))
+(   17          (print prime))
+(   18          (let i (* prime 2)))
+(   19          (goto punch))
+(   20 loop     (let (sieve i) 0))
+(   21          (let i (+ i prime)))
+(   22 punch    (if (<= i n) loop))
+(   23          )
+(   24 next     (let prime (+ prime 1)))
+(   25          (if (<= prime n) primes))
+)

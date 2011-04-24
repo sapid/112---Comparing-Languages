@@ -1,0 +1,33 @@
+;;File: 33-quadratic.sb
+;;   1: # $Id: 33-quadratic.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: #
+;;   3: # Quadratic equation solver
+;;   4: #
+;;   5: 
+;;   6: 	print "Quadratic Equation solver."
+;;   7: loop:	print "Input a, b, c"
+;;   8: 	input a, b, c
+;;   9: 	if inputcount <> 3 goto stop
+;;  10: 	let q = sqrt( b ^ 2 - 4 * a * c )
+;;  11: 	print "Equation: ", a, " * x ^ 2 +", b, " * x +", c
+;;  12: 	print "root1 = ", ( - b + q ) / ( 2 * a )
+;;  13: 	print "root2 = ", ( - b - q ) / ( 2 * a )
+;;  14: 	goto loop
+;;  15: stop:
+(
+(    1          )
+(    2          )
+(    3          )
+(    4          )
+(    5          )
+(    6          (print "Quadratic Equation solver."))
+(    7 loop     (print "Input a, b, c"))
+(    8          (input a b c))
+(    9          (if (<> inputcount 3) stop))
+(   10          (let q (sqrt (- (^ b 2) (* (* 4 a) c)))))
+(   11          (print "Equation: " a " * x ^ 2 +" b " * x +" c))
+(   12          (print "root1 = " (/ (+ (- b) q) (* 2 a))))
+(   13          (print "root2 = " (/ (- (- b) q) (* 2 a))))
+(   14          (goto loop))
+(   15 stop     )
+)

@@ -1,0 +1,67 @@
+;;File: 32-factorial.sb
+;;   1: # $Id: 32-factorial.sbir,v 1.1 2011-04-08 20:16:50-07 - - $
+;;   2: #
+;;   3: # Factorial.
+;;   4: #
+;;   5: read:	print "Factorial of:"
+;;   6: 	input x
+;;   7: 	# check the variable eof for a valid value or not.
+;;   8: 	if inputcount = -1 goto stop
+;;   9: 	if inputcount = 0 goto error
+;;  10: 	if x < 0 goto error
+;;  11: 	goto letfac
+;;  12: error:	print "Invalid input."
+;;  13: 	goto read
+;;  14: 
+;;  15: #
+;;  16: #
+;;  17: #
+;;  18: 
+;;  19: letfac:	let factorial = 1
+;;  20: 	let itor = 2
+;;  21: loop:	if itor > x goto prt
+;;  22: 	let factorial = factorial * itor
+;;  23: 	let itor = itor + 1
+;;  24: 	goto loop
+;;  25: prt:	print "factorial(", x, ") = ", factorial
+;;  26: 	goto read
+;;  27: 
+;;  28: #
+;;  29: # end of file.
+;;  30: #
+;;  31: 
+;;  32: stop:	print "Program stopping."
+(
+(    1          )
+(    2          )
+(    3          )
+(    4          )
+(    5 read     (print "Factorial of:"))
+(    6          (input x))
+(    7          )
+(    8          (if (= inputcount (- 1)) stop))
+(    9          (if (= inputcount 0) error))
+(   10          (if (< x 0) error))
+(   11          (goto letfac))
+(   12 error    (print "Invalid input."))
+(   13          (goto read))
+(   14          )
+(   15          )
+(   16          )
+(   17          )
+(   18          )
+(   19 letfac   (let factorial 1))
+(   20          (let itor 2))
+(   21 loop     (if (> itor x) prt))
+(   22          (let factorial (* factorial itor)))
+(   23          (let itor (+ itor 1)))
+(   24          (goto loop))
+(   25 prt      (print "factorial(" x ") = " factorial))
+(   26          (goto read))
+(   27          )
+(   28          )
+(   29          )
+(   30          )
+(   31          )
+(   32 stop     (print "Program stopping."))
+)
