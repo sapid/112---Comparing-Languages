@@ -1,2 +1,6 @@
 This repository holds projects intended to explore several programming languages.
 The authors are Will Crawford and Ben Ross.
+
+Project manifest:
+1: pmake, a subset of make rewritten in Perl.
+2: sbi, an interpreter for Silly Basic written in Scheme.

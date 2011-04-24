@@ -1,3 +1,5 @@
+test/*
 *.swp
 *.out
 Makefile.deps
+.gitignore
