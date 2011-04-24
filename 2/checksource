@@ -1,0 +1,147 @@
+#!/usr/bin/perl
+my $RCSID = '$Id: checksource,v 1.25 2010-12-20 19:47:00-08 - - $';
+use strict;
+use warnings;
+
+$0 =~ s|^.*/||;
+
+my $MANPAGE = <<__END_MAN_PAGE__;
+
+NAME
+
+   checksource - check source code for basic reasonable formatting
+
+SYNOPSIS
+
+   checksource [filename...]
+
+DESCRIPTION
+
+   Checks the input files for basic formatting sanity.  Prints
+   complaints for strange looking files and a summary.  If no
+   filenames are specified, prints out this man page.
+
+OPERANDS
+
+   Files to check for reasonable formatting.
+
+COMPLAINTS
+
+   The only invisible characters may be spaces and newlines,
+   except for a Makefile, where some lines begin with a tab.
+   Form feed is acceptable on a line by itself if used for
+   formatting purposes.
+
+   Printable characters are any ISO-Latin-1 characters in the
+   range '!' to '~' and '�' to '�' (\\u0021 to \\u007E and
+   \\u00A1 to \\u00FF).  See:  http://www.unicode.org/charts/.
+   ASCII files contain a subset of these characters.
+
+   Each line must end in a newline.  The last character of the
+   file must be a newline.  M*cr*\$*ft format files are not
+   acceptable.  If you use emacs, be sure that your .emacs file
+   has:  (setq require-final-newline t)
+
+   You may remove carriage returns from your file with one of
+   the following commands:
+
+   . Perl:    perl -pi -e 's/\\r//' filename
+   . vi:      :g/^V^M/s///
+   . shell:   dos2unix oldfilename >newfilename
+
+   No line may have more than 72 characters before the newline.
+   Or:  with ``cat -n | expand'', lines including line numbers
+   should not be longer than 80 characters.  Long lines should
+   be wrapped in a sensible place, such as after a comma, and
+   properly indented on the next line.
+
+   Indent with 3 spaces for each level, and do not use tabs.
+
+   In a Makefile, a tab is required as the first character on a
+   shell command, but should never be used after a non-TAB
+   character.
+
+$RCSID
+
+__END_MAN_PAGE__
+
+my $complaints = 0;
+my %messages;
+
+sub error($$$){
+   my ($filename, $linenr, $message) = @_;
+   push @{$messages{$message}{$filename}}, $linenr;
+   ++$complaints;
+}
+
+print $MANPAGE and exit unless @ARGV;
+
+for my $filename (@ARGV) {
+   open FILE, "<$filename" or do {error $filename, 0, $!; next};
+   while (defined (my $line = <FILE>)) {
+
+      # Check for missing newline
+      error $filename, $., "missing newline at end of line"
+            unless $line =~ s/\n$//;
+
+      # Expand initial tab in a Makefile.
+      $line =~ s/^\t/" " x 8/e if $filename =~ m|^(.*/)?Makefile$|;
+
+      # Check for line length.
+      my $maxlen = 72;
+      for (my $max = $maxlen; (length $line) > $max; $max += $maxlen) {
+         error $filename, $., "line length > $max characters";
+      };
+
+      # Form feed is OK on a line by itself.
+      $line =~ s/^\f$//;
+
+      # Check for improper chars in line.
+      for my $char ($line =~ m/[^\n\x20-\x7E\xA1-\xFF]/g) {
+         my $ord = ord $char;
+         my $message = sprintf "improper character \\x%02X", $ord;
+         $message .= sprintf " = ^%c", $ord ^ 0x40 if $ord < 0x40;
+         $message .= " (tab)" if $char eq "\t";
+         $message .= " (carriage return)" if $char eq "\r";
+         error $filename, $., $message;
+      }
+
+   }
+   close FILE;
+}
+
+if ($complaints) {
+   for my $message (sort keys %messages) {
+      print STDERR "$0: $message\n";
+      my $filehash = $messages{$message};
+      for my $filename (sort keys %$filehash) {
+         my @rangenrs;
+         my @linenrs = @{$filehash->{$filename}};
+         my $errs = @linenrs;
+         my $complaint = "   file \"$filename\": $errs errors: lines ";
+         while (@linenrs) {
+            my $end = 1;
+            ++$end while $end < @linenrs
+                   and ($linenrs[$end - 1] == $linenrs[$end]
+                     or $linenrs[$end - 1] + 1 == $linenrs[$end]);
+            if ($end == 1) {
+               push @rangenrs, shift @linenrs;
+            }else {
+               my @splice = splice @linenrs, 0, $end;
+               push @rangenrs, "$splice[0]--$splice[-1]";
+            }
+         }
+         $complaint .= join ", ", @rangenrs;
+         while (length ($complaint) > 72) {
+            $complaint =~ s/^.{9,72}\s+/" " x 8/e;
+            my $segment = $&;
+            print STDERR "$segment\n";
+         }
+         print STDERR "$complaint\n";
+      }
+   }
+   printf STDERR "$0: TOTAL COMPLAINTS: $complaints\n";
+   exit 1;
+}
+
+
