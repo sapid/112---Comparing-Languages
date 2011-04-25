@@ -84,6 +84,30 @@
 ;; ========================
 (define l-hash (make-hash)) ; Label hash table
 
+(define (h_eval expr)
+  (printf "DEBUG: Stub: Evaluating an expression.~n")
+)
+
+(define (sb_print expr)
+  (printf "DEBUG: Stub: Printing an expression.~n")
+)
+
+(define (sb_dim expr)
+  (printf "DEBUG: Stub: Declaring an array.~n")
+)
+
+(define (sb_let mem expr)
+  (printf "DEBUG: Stub: Declaring a variable.~n")
+)
+
+(define (sb_if expr label)
+  (printf "DEBUG: Stub: Conditional goto.~n")
+)
+
+(define (sb_input expr)
+  (printf "DEBUG: Stub: Read in numbers.~n")
+)
+
 ; Function: Walk through program and execute it.
 (define (exec-program program)
    (printf "DEBUG: Stub: Executing the program.~n")
@@ -127,7 +151,6 @@
         (collect-garbage)
         ))
 )
+
 ; Execute the program!
 (main (vector->list (current-command-line-arguments)))
-
-
