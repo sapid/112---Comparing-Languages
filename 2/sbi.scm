@@ -47,7 +47,6 @@
               (close-input-port inputfile)
                    program)))
 )
-
 (define *symbol-table* (make-hash)) ; Symbol hash table
 (define (symbol-get key) ; Example: (symbol-get 'log10)
         (hash-ref *symbol-table* key))
@@ -58,7 +57,6 @@
     (lambda (pair)
             (symbol-put! (car pair) (cadr pair)))
     `(
-
         (log10_2 0.301029995663981195213738894724493026768189881)
         (sqrt_2  1.414213562373095048801688724209698078569671875)
         (e       2.718281828459045235360287471352662497757247093)
@@ -75,13 +73,12 @@
         (floor   ,floor)
         (log     ,log)
         (sqrt    ,sqrt)
-
      ))
-
-
 ;; ======================= 
 ;;      Our functions
 ;; ========================
+(define n-hash (make-hash)) ; Native function translation table
+
 (define l-hash (make-hash)) ; Label hash table
 
 (define (h_eval expr)
@@ -100,17 +97,45 @@
   (printf "DEBUG: Stub: Declaring a variable.~n")
 )
 
-(define (sb_if expr label)
-  (printf "DEBUG: Stub: Conditional goto.~n")
-)
-
 (define (sb_input expr)
   (printf "DEBUG: Stub: Read in numbers.~n")
 )
 
-; Function: Walk through program and execute it.
-(define (exec-program program)
+(define (sb_if expr label)
+  (printf "DEBUG: Stub: Conditional goto.~n")
+)
+
+(define (sb_goto label)
+  (printf "DEBUG: Stub: Goto.~n")
+)
+(for-each
+  (lambda (pair)
+          (hash-set! n-hash (car pair) (cadr pair)))
+  `(      ; This hash table translates SB functions to our functions.
+      (print ,sb_print)
+      (dim   ,sb_dim)
+      (let   ,sb_let)
+      (input ,sb_input)
+      (if    ,sb_if)
+      (goto  ,sb_goto)
+   ))
+; Function: Execute a line passed by eval-line.
+
+; Function: Walk through program and execute it. 
+; This function takes a line number to execute.
+(define (eval-line program line-nr)
    (printf "DEBUG: Stub: Executing the program.~n")
+   (let (line (list-ref program line-nr))
+   (cond
+     ((= (length line) 3)
+      (set! line (cddr line))
+      (printf "DEBUG: Line had 3 elements.~n   ~s~n" line))
+     ((= (length line) 2)
+      (set! line (cdr line))
+      (printf "DEBUG: Line had 2 elements.~n   ~s~n" line))
+     (else 
+       (eval-line program (+ line-nr 1)))
+   ))
 )
 ; Function: Find the length of a list.
 (define length
@@ -147,8 +172,7 @@
         ; Fetch all the labels that occur in program
         (hash-labels program) 
         ; Execute the program.
-        (exec-program program)
-        (collect-garbage)
+        (eval-line program 1)
         ))
 )
 
