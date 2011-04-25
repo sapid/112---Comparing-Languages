@@ -17,6 +17,7 @@
 ;;   SBIR program, which is the executed.  Currently it is only
 ;;   printed.
 ;;
+(require racket/math)
 ;; ========================
 ;;    Mackey's functions
 ;; ========================
@@ -67,11 +68,28 @@
 (define s-hash (make-hash)) ; Symbol hash table
 ; Function: Initialize the symbol table.
 (define (initialize-s-hash)
-   (printf "Stub: Initializing the symbol table.~n")
+   (hash-set! s-hash 'pi pi)
+   (hash-set! s-hash 'e 2.718281828459045)
+   (hash-set! s-hash 'abs 'abs)
+   (hash-set! s-hash 'acos 'acos)
+   (hash-set! s-hash 'asin 'asin)
+   (hash-set! s-hash 'atan 'atan)
+   (hash-set! s-hash 'ceil 'ceil)
+   (hash-set! s-hash 'cos 'cos)
+   (hash-set! s-hash 'exp 'exp)
+   (hash-set! s-hash 'floor 'floor)
+   (hash-set! s-hash 'log 'log)
+   (hash-set! s-hash 'log10 'log10)
+   (hash-set! s-hash 'log2 'log2)
+   (hash-set! s-hash 'round 'round)
+   (hash-set! s-hash 'sin 'sin)
+   (hash-set! s-hash 'srqt 'sqrt)
+   (hash-set! s-hash 'tan 'tan)
+   (hash-set! s-hash 'trunc 'trunc)
 )
 ; Function: Walk through program and execute it.
 (define (exec-program program)
-   (printf "Stub: Executing the program.~n")
+   (printf "DEBUG: Stub: Executing the program.~n")
 )
 ; Function: Find the length of a list.
 (define length
@@ -106,7 +124,12 @@
             ; Set program = The list of commands in the inputfile.
             (program (readlist-from-inputfile sbprogfile))) 
         ;Initialize the symbol table with native symbols.
-        (initialize-s-hash) 
+        (initialize-s-hash)
+        ; DEBUG
+        (printf "Symbol table initialized~n")
+        (map (lambda (el) (printf "~s~n" el))(hash->list s-hash))
+        (printf "Symbol table dump complete.~n")
+        ; END DEBUG
         ; Call write-program-by-line(sbprogfile, program)
         ; Pretty much a debug function.
         (write-program-by-line sbprogfile program) 
@@ -114,6 +137,7 @@
         (hash-labels program) 
         ; Execute the program.
         (exec-program program)
+        (collect-garbage)
         ))
 )
 ; Execute the program!
