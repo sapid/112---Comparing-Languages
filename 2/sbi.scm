@@ -28,7 +28,7 @@
          (split-path (find-system-path 'run-file))))
       (path->string basepath))
 )
-; Function: Exit and print the list provided.
+; Function: Exit and print the error provided.
 (define (die list)
    (for-each (lambda (item) (display item *stderr*)) list)
    (newline *stderr*)
@@ -47,24 +47,13 @@
               (close-input-port inputfile)
                    program)))
 )
-; Print each line of the program.
-(define (write-program-by-line filename program)
-   (printf "==================================================~n")
-   (printf "~a: ~s~n" *run-file* filename)
-   (printf "==================================================~n")
-   (printf "(~n")
-   ; For each list element in program, print each element.
-   (map (lambda (line) (printf "~s~n" line)) program)
-   (printf ")~n")
-   (printf "==================================================~n")
-)
 
 (define *symbol-table* (make-hash)) ; Symbol hash table
-(define (symbol-get key)
+(define (symbol-get key) ; Example: (symbol-get 'log10)
         (hash-ref *symbol-table* key))
 (define (symbol-put! key value)
         (hash-set! *symbol-table* key value))
-
+; Initialize the symbol table.
 (for-each
     (lambda (pair)
             (symbol-put! (car pair) (cadr pair)))
@@ -131,16 +120,6 @@
       (let* ((sbprogfile (car arglist))
             ; Set program = The list of commands in the inputfile.
             (program (readlist-from-inputfile sbprogfile))) 
-        ;Initialize the symbol table with native symbols.
-        ;(initialize-s-hash)
-        ; DEBUG
-        (printf "Symbol table initialized~n")
-        (map (lambda (el) (printf "~s~n" el))(hash->list s-hash))
-        (printf "Symbol table dump complete.~n")
-        ; END DEBUG
-        ; Call write-program-by-line(sbprogfile, program)
-        ; Pretty much a debug function.
-        (write-program-by-line sbprogfile program) 
         ; Fetch all the labels that occur in program
         (hash-labels program) 
         ; Execute the program.
