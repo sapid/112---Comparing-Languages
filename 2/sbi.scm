@@ -59,7 +59,7 @@
    (map (lambda (line) 
           (when (not (null? line))
             (when (= 3 (length line))
-                (printf "~s~n" (cadr line))))) program)
+                (printf "~s: ~s~n" (car line) (cadr line))))) program)
    (printf "==================================================~n")
    (printf "(~n")
 )
