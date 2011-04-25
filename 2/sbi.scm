@@ -17,6 +17,9 @@
 ;;   SBIR program, which is the executed.  Currently it is only
 ;;   printed.
 ;;
+;; ========================
+;;    Mackey's functions
+;; ========================
 ; Define *stderr*
 (define *stderr* (current-error-port))
 ; Function: Find the basename of the filename provided.
@@ -45,37 +48,54 @@
               (close-input-port inputfile)
                    program)))
 )
-; Helper function to find the length of a list.
+; Print each line of the program.
+(define (write-program-by-line filename program)
+   (printf "==================================================~n")
+   (printf "~a: ~s~n" *run-file* filename)
+   (printf "==================================================~n")
+   (printf "(~n")
+   ; For each list element in program, print each element.
+   (map (lambda (line) (printf "~s~n" line)) program)
+   (printf ")~n")
+   (printf "==================================================~n")
+)
+
+;; ========================
+;;      Our functions
+;; ========================
+(define l-hash (make-hash)) ; Label hash table
+(define s-hash (make-hash)) ; Symbol hash table
+; Function: Initialize the symbol table.
+(define (initialize-s-hash)
+   (printf "Stub: Initializing the symbol table.~n")
+)
+; Function: Walk through program and execute it.
+(define (exec-program program)
+   (printf "Stub: Executing the program.~n")
+)
+; Function: Find the length of a list.
 (define length
    (lambda (ls)
      (if (null? ls)
          0
          (+ (length (cdr ls)) 1)))
 )
-; Print the labels.
-(define (write-labels program)
-   (printf "Labels:~n")
+; Push the labels into the hash table.
+(define (hash-labels program)
+   (printf "Hashing labels:~n")
    (printf "==================================================~n")
    (map (lambda (line) 
           (when (not (null? line))
             (when (= 3 (length line))
-                (printf "~a: ~s~n" (car line) (cadr line))
+                (printf "~a: ~s~n" (- (car line) 1) (cadr line))
                 (printf "    ~s~n" (list-ref program (- (car line) 1)))
+                (hash-set! l-hash (cadr line) (- (car line) 1 ))
                 ))) program)
    (printf "==================================================~n")
-   (printf "(~n")
+   (printf "Dumping label table...~n")
+   (map (lambda (el) (printf "~s~n" el))(hash->list l-hash))
 )
 
-; Print each line of the program.
-(define (write-program-by-line filename program)
-   (printf "==================================================~n")
-   (printf "~a: ~s~n" *run-file* filename)
-   (printf "==================================================~n")
-   (write-labels program)
-   ; For each list element in program, print each element.
-   (map (lambda (line) (printf "~s~n" line)) program)
-   (printf ")~n")
-)
 ; This is the main function that gets called.
 (define (main arglist)
    (if (or (null? arglist) (not (null? (cdr arglist))))
@@ -85,10 +105,18 @@
       (let* ((sbprogfile (car arglist))
             ; Set program = The list of commands in the inputfile.
             (program (readlist-from-inputfile sbprogfile))) 
-      ; Call write-program-by-line(sbprogfile, program)
-      (write-program-by-line sbprogfile program)))
+        ;Initialize the symbol table with native symbols.
+        (initialize-s-hash) 
+        ; Call write-program-by-line(sbprogfile, program)
+        ; Pretty much a debug function.
+        (write-program-by-line sbprogfile program) 
+        ; Fetch all the labels that occur in program
+        (hash-labels program) 
+        ; Execute the program.
+        (exec-program program)
+        ))
 )
-; Execute the main function.
+; Execute the program!
 (main (vector->list (current-command-line-arguments)))
 
 
