@@ -45,12 +45,31 @@
               (close-input-port inputfile)
                    program)))
 )
-; What is this?
+; Helper function to find the length of a list.
+(define length
+   (lambda (ls)
+     (if (null? ls)
+         0
+         (+ (length (cdr ls)) 1)))
+)
+; Print the labels.
+(define (write-labels program)
+   (printf "Labels:~n")
+   (printf "==================================================~n")
+   (map (lambda (line) 
+          (when (not (null? line))
+            (when (= 3 (length line))
+                (printf "~s~n" (cadr line))))) program)
+   (printf "==================================================~n")
+   (printf "(~n")
+)
+
+; Print each line of the program.
 (define (write-program-by-line filename program)
    (printf "==================================================~n")
    (printf "~a: ~s~n" *run-file* filename)
    (printf "==================================================~n")
-   (printf "(~n")
+   (write-labels program)
    ; For each list element in program, print each element.
    (map (lambda (line) (printf "~s~n" line)) program)
    (printf ")~n")
