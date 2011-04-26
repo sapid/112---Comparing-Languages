@@ -105,18 +105,24 @@
 
 (define (sb_print expr)
   (printf "DEBUG: Stub: Printing an expression.~n")
+  (printf "~s~n" (h_eval expr))
 )
 
 (define (sb_dim expr)
   (printf "DEBUG: Stub: Declaring an array.~n")
+  (let((arr (make-vector (cadr expr))))
+    (symbol-put! (car expr) arr))
 )
 
-(define (sb_let mem expr)
+(define (sb_let expr)
   (printf "DEBUG: Stub: Declaring a variable.~n")
+  (symbol-put! (car expr) (h_eval expr))
 )
 
 (define (sb_input expr)
   (printf "DEBUG: Stub: Read in numbers.~n")
+  (let((test (read)))
+    (symbol-put! (car expr) test))
 )
 
 (define (sb_if expr label)
@@ -196,6 +202,8 @@
         ; Execute the program.
         (eval-line program 1)
         ))
+   (let((blah 1))
+   (sb_input blah))
 )
 
 ; Execute the program!
