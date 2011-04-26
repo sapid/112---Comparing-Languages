@@ -83,6 +83,24 @@
 
 (define (h_eval expr)
   (printf "DEBUG: Stub: Evaluating an expression.~n")
+  (printf "expr: ~s~n" expr)
+  (cond
+    ((string? expr)
+      (printf "is string: ~s~n" expr)
+      expr)
+    ((number? expr)
+      (printf "is number ~s~n" expr)
+      expr)
+    ((list? expr)
+      (printf "is list~n")
+      (if (> (length expr) 1)
+        (h_eval (cadr expr))
+        (printf"test~n"))
+      (if (not (null? (cdr expr)))
+        (h_eval (cdr expr))
+        expr))
+    (else 
+       (printf "neither~n")))
 )
 
 (define (sb_print expr)
@@ -125,14 +143,18 @@
 ; This function takes a line number to execute.
 (define (eval-line program line-nr)
    (printf "DEBUG: Stub: Executing the program.~n")
-   (let (line (list-ref program line-nr))
+   (let((line (list-ref program line-nr)))
    (cond
      ((= (length line) 3)
       (set! line (cddr line))
-      (printf "DEBUG: Line had 3 elements.~n   ~s~n" line))
+      (printf "DEBUG: Line had 3 elements.~n   ~s~n" line)
+      (printf "CDR: ~s~n"(car line)))
      ((= (length line) 2)
       (set! line (cdr line))
-      (printf "DEBUG: Line had 2 elements.~n   ~s~n" line))
+      (let((str (car line)))
+      (h_eval str)
+      (printf "DEBUG: Line had 2 elements.~n   ~s~n" line)
+      (printf "str: ~s~n" str)))
      (else 
        (eval-line program (+ line-nr 1)))
    ))
