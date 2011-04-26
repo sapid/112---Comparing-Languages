@@ -4,18 +4,14 @@
 ;;   Will Crawford <wacrawfo@ucsc.edu>
 ;;   Ben Ross     <bpross@ucsc.edu>
 ;;   Based on code by Wesley Mackey
-;;
 ;; NAME
 ;;   sbi.scm - silly basic interpreter
-;;
 ;; SYNOPSIS
 ;;   sbi.scm filename.sbir
-;;
 ;; DESCRIPTION
 ;;   The file mentioned in argv[1] is read and assumed to be an
 ;;   SBIR program, which is the executed.  Currently it is only
 ;;   printed.
-;;
 ;; ========================
 ;;    Mackey's functions
 ;; ========================
@@ -26,18 +22,15 @@
    (let-values
       (((dirpath basepath root?)
          (split-path (find-system-path 'run-file))))
-      (path->string basepath))
-)
+      (path->string basepath)))
 ; Function: Exit and print the error provided.
 (define (die list)
    (for-each (lambda (item) (display item *stderr*)) list)
    (newline *stderr*)
-   (exit 1)
-)
+   (exit 1))
 ; Function: Print usage information and die.
 (define (usage-exit)
-   (die `("Usage: " ,*run-file* " filename"))
-)
+   (die `("Usage: " ,*run-file* " filename")))
 ; Function: Read in the file.
 (define (readlist-from-inputfile filename)
    (let ((inputfile (open-input-file filename)))
@@ -45,8 +38,7 @@
           (die `(,*run-file* ": " ,filename ": open failed"))
           (let ((program (read inputfile)))
               (close-input-port inputfile)
-                   program)))
-)
+                   program))))
 (define *symbol-table* (make-hash)) ; Symbol hash table
 (define (symbol-get key) ; Example: (symbol-get 'log10)
         (hash-ref *symbol-table* key))
@@ -72,13 +64,11 @@
         (exp     ,exp)
         (floor   ,floor)
         (log     ,log)
-        (sqrt    ,sqrt)
-     ))
+        (sqrt    ,sqrt)))
 ;; ======================= 
 ;;      Our functions
 ;; ========================
 (define n-hash (make-hash)) ; Native function translation table
-
 (define l-hash (make-hash)) ; Label hash table
 
 (define (h_eval expr)
@@ -155,7 +145,6 @@
           ;(,(hash-ref n-hash (car instr)) (cdr instr))
           (eval-line program (+ line-nr 1))))
 )
-
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
 (define (eval-line program line-nr)
@@ -199,7 +188,6 @@
 ;   (printf "Dumping label table...~n")
 ;   (map (lambda (el) (printf "~s~n" el))(hash->list l-hash))
 )
-
 ; This is the main function that gets called.
 (define (main arglist)
    (if (or (null? arglist) (not (null? (cdr arglist))))
@@ -215,6 +203,4 @@
         (eval-line program 0)
         ))
 )
-
-; Execute the program!
 (main (vector->list (current-command-line-arguments)))
