@@ -82,25 +82,26 @@
 (define l-hash (make-hash)) ; Label hash table
 
 (define (h_eval expr)
-  (printf "DEBUG: Stub: Evaluating an expression.~n")
-  (printf "expr: ~s~n" expr)
+  (printf "DEBUG: Evaluating...~n")
+  (printf "       ~s~n" expr)
   (cond
     ((string? expr)
-      (printf "is string: ~s~n" expr)
+      (printf "       is a string~n")
       expr)
     ((number? expr)
-      (printf "is number ~s~n" expr)
+      (printf "       is a number~n")
       expr)
     ((list? expr)
-      (printf "is list~n")
+      (printf "       is a list~n")
       (if (> (length expr) 1)
         (h_eval (cadr expr))
-        (printf"test~n"))
+        (printf "       test~n"))
       (if (not (null? (cdr expr)))
         (h_eval (cdr expr))
         expr))
     (else 
-       (printf "neither~n")))
+       (printf "       hit else~n")))
+
 )
 
 (define (sb_print expr)
@@ -138,23 +139,40 @@
       (goto  ,sb_goto)
    ))
 ; Function: Execute a line passed by eval-line.
+(define (exec-line instr program line-nr)
+  (when (not (hash-has-key? n-hash (car instr))) ; Die if invalid.
+        (die "~s is not a valid instruction." (car instr)))
+  (cond
+        ((= (car instr) goto)
+         (eval-line program (cdr instr)))
+        ((= (car instr) 'if)
+         (if (#f );h_eval (cdr (car instr)))
+           (eval-line program (cdr (cdr instr)))
+           (eval-line program (+ line-nr 1))))
+        (else
+          ;(,(hash-ref n-hash (car instr)) (cdr instr))
+          (eval-line program (+ line-nr 1))))
+)
 
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
 (define (eval-line program line-nr)
-   (printf "DEBUG: Stub: Executing the program.~n")
+   (printf "DEBUG: Executing line.~n")
+   (printf "       ~s~n" (list-ref program line-nr))
    (let((line (list-ref program line-nr)))
    (cond
      ((= (length line) 3)
       (set! line (cddr line))
-      (printf "DEBUG: Line had 3 elements.~n   ~s~n" line)
-      (printf "CDR: ~s~n"(car line)))
+      (printf "DEBUG: Line had 3 elements.~n        ~s~n" line)
+      (printf "CDR: ~s~n"(car line))
+      ;(exec-line instr program line-nr))
+      (eval-line program (+1 line-nr 1)))
      ((= (length line) 2)
       (set! line (cdr line))
-      (let((str (car line)))
-      (h_eval str)
-      (printf "DEBUG: Line had 2 elements.~n   ~s~n" line)
-      (printf "str: ~s~n" str)))
+      (let((instr (car line)))
+      (printf "DEBUG: Line had 2 elements.~n       ~s~n" line)
+      (printf "       ~s~n" instr))
+      (eval-line program (+ line-nr 1)))
      (else 
        (eval-line program (+ line-nr 1)))
    ))
@@ -168,18 +186,18 @@
 )
 ; Push the labels into the hash table.
 (define (hash-labels program)
-   (printf "Hashing labels:~n")
-   (printf "==================================================~n")
+;   (printf "Hashing labels:~n")
+;   (printf "==================================================~n")
    (map (lambda (line) 
           (when (not (null? line))
             (when (= 3 (length line))
-                (printf "~a: ~s~n" (- (car line) 1) (cadr line))
-                (printf "    ~s~n" (list-ref program (- (car line) 1)))
+;                (printf "~a: ~s~n" (- (car line) 1) (cadr line))
+;                (printf "    ~s~n" (list-ref program (- (car line) 1)))
                 (hash-set! l-hash (cadr line) (- (car line) 1 ))
                 ))) program)
-   (printf "==================================================~n")
-   (printf "Dumping label table...~n")
-   (map (lambda (el) (printf "~s~n" el))(hash->list l-hash))
+;   (printf "==================================================~n")
+;   (printf "Dumping label table...~n")
+;   (map (lambda (el) (printf "~s~n" el))(hash->list l-hash))
 )
 
 ; This is the main function that gets called.
@@ -194,7 +212,7 @@
         ; Fetch all the labels that occur in program
         (hash-labels program) 
         ; Execute the program.
-        (eval-line program 1)
+        (eval-line program 0)
         ))
 )
 
