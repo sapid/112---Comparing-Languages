@@ -70,20 +70,20 @@
 (define n-hash (make-hash)) ; Native function translation table
 (define l-hash (make-hash)) ; Label hash table
 (define (h_eval expr) ; Evaluates expressions.
-  (printf "DEBUG: h_Evaluating...~n")
-  (printf "       ~s~n" expr)
+  ;(printf "DEBUG: h_Evaluating...~n")
+  ;(printf "       ~s~n" expr)
   (cond
     ((string? expr)
-      (printf "       is a string~n")
+      ;(printf "       is a string~n")
       expr)
     ((number? expr)
-      (printf "       is a number~n")
+      ;(printf "       is a number~n")
       expr)
     ((hash-has-key? *symbol-table* expr)
-      (printf "       is a hash key~n")
+      ;(printf "       is a hash key~n")
       (symbol-get expr))
     ((list? expr)
-      (printf "       is a list~n")
+      ;(printf "       is a list~n")
       (if (hash-has-key? *symbol-table* (car expr))
         (let((head (symbol-get (car expr))))
           (if (not (vector? head))
@@ -93,20 +93,25 @@
                  (head arg1 arg2))
             (vector-ref head (cadr expr))))
       ((void))))))
-(define (sb_print expr) ; PRINTs. 
+
+(define (sb_print expr) ; PRINTs. Only called if there are print args.
    (map (lambda (x) (display (h_eval x))) expr)
    (newline))
+
 (define (sb_dim expr) ; Declare an array.
   (printf "DEBUG: Declaring an array.~n")
   (let((arr (make-vector (cadr (h_eval expr)))))
     (symbol-put! (car expr) arr)))
+
 (define (sb_let expr) ; Assign a variable.
   (printf "DEBUG: Declaring a variable.~n")
   (symbol-put! (car expr) (h_eval expr)))
+
 (define (sb_input expr) ; Take input.
   (printf "DEBUG: Read in numbers.~n")
   (let((input (read)))
     (symbol-put! (car expr) input)))
+
 ; Function: Execute a line passed by eval-line.
 (define (exec-line instr program line-nr) ; Execute a line.
   (when (not (hash-has-key? n-hash (car instr))) ; Die if invalid.
@@ -120,15 +125,17 @@
            (eval-line program (+ line-nr 1))))
         ((eq? (car instr) 'print)
          (if (null? (cdr instr))
-           ((newline))
-           ((sb_print (cdr instr)) ; Bad identifier?!
-            (eval-line program (+ line-nr 1)))))
+           (newline)
+           (sb_print (cdr instr))) ; Bad identifier?!
+           (eval-line program (+ line-nr 1)))
         (else
           ((hash-ref n-hash (car instr)) (cdr instr))
           (eval-line program (+ line-nr 1)))))
+
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
 (define (eval-line program line-nr) ; Parse a line.
+   ;(printf "Eval...~n")
    (when (> (length program) line-nr)
     (printf "DEBUG: Executing line ~a of ~a.~n" 
             line-nr (length program))
