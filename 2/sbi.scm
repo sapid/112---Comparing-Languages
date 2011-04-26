@@ -81,7 +81,7 @@
       (symbol-get expr))
     ((list? expr)
       (printf "       is a list~n")
-      (if (hash-has-key? (car expr))
+      (if (hash-has-key? *symbol-table* (car expr))
         (let((head (symbol-get (car expr))))
           (if (not (vector? head))
             (let(
@@ -93,7 +93,7 @@
 (define (sb_print expr)
   (printf "DEBUG: Printing an expression.~n")
   (printf "       ~s~n" expr)
-  (display (map h_eval expr))
+  (map (lambda (x) (printf "~s" (h_eval x))) expr)
   (newline))
   ;(printf "~s~n" (list->string (map h_eval expr))))
 (define (sb_dim expr)
