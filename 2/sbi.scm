@@ -91,17 +91,25 @@
     ((number? expr)
       (printf "       is a number~n")
       expr)
+    ((hash-has-key? *symbol-table* expr)
+      (printf "       is a hash key~n")
+      (symbol-get expr))
     ((list? expr)
       (printf "       is a list~n")
-      (if (> (length expr) 1)
-        (h_eval (cadr expr))
-        (printf "       test~n"))
-      (if (not (null? (cdr expr)))
-        (h_eval (cdr expr))
-        expr))
+      (if (hash-has-key? (car expr))
+        (let((vec (symbol-get (car expr))))
+          (if (not (vector? vec))
+            (let(
+                (arg1 (h_eval (cadr expr)))
+                (arg2 (h_eval (caddr expr)))
+                )
+                (vec arg1 arg2)
+             )
+          (else
+            (let((pos (vector-ref vec (cadr expr))))
+              pos))))))   
     (else 
-       (printf "       hit else~n")))
-
+       0))
 )
 
 (define (sb_print expr)
@@ -111,7 +119,7 @@
 
 (define (sb_dim expr)
   (printf "DEBUG: Declaring an array.~n")
-  (let((arr (make-vector (cadr expr))))
+  (let((arr (make-vector (cadr (h_eval expr)))))
     (symbol-put! (car expr) arr))
 )
 
@@ -122,17 +130,10 @@
 
 (define (sb_input expr)
   (printf "DEBUG: Read in numbers.~n")
-  (let((test (read)))
-    (symbol-put! (car expr) test))
+  (let((input (read)))
+    (symbol-put! (car expr) input))
 )
 
-(define (sb_if expr label)
-  (printf "DEBUG: Conditional goto.~n")
-)
-
-(define (sb_goto label)
-  (printf "DEBUG: Goto.~n")
-)
 (for-each
   (lambda (pair)
           (hash-set! n-hash (car pair) (cadr pair)))
