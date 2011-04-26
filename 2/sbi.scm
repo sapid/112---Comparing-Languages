@@ -105,33 +105,33 @@
 )
 
 (define (sb_print expr)
-  (printf "DEBUG: Stub: Printing an expression.~n")
+  (printf "DEBUG: Printing an expression.~n")
   (printf "~s~n" (h_eval expr))
 )
 
 (define (sb_dim expr)
-  (printf "DEBUG: Stub: Declaring an array.~n")
+  (printf "DEBUG: Declaring an array.~n")
   (let((arr (make-vector (cadr expr))))
     (symbol-put! (car expr) arr))
 )
 
 (define (sb_let expr)
-  (printf "DEBUG: Stub: Declaring a variable.~n")
+  (printf "DEBUG: Declaring a variable.~n")
   (symbol-put! (car expr) (h_eval expr))
 )
 
 (define (sb_input expr)
-  (printf "DEBUG: Stub: Read in numbers.~n")
+  (printf "DEBUG: Read in numbers.~n")
   (let((test (read)))
     (symbol-put! (car expr) test))
 )
 
 (define (sb_if expr label)
-  (printf "DEBUG: Stub: Conditional goto.~n")
+  (printf "DEBUG: Conditional goto.~n")
 )
 
 (define (sb_goto label)
-  (printf "DEBUG: Stub: Goto.~n")
+  (printf "DEBUG: Goto.~n")
 )
 (for-each
   (lambda (pair)
@@ -149,11 +149,11 @@
   (when (not (hash-has-key? n-hash (car instr))) ; Die if invalid.
         (die "~s is not a valid instruction." (car instr)))
   (cond
-        ((= (car instr) goto)
-         (eval-line program (cdr instr)))
-        ((= (car instr) 'if)
-         (if (#f );h_eval (cdr (car instr)))
-           (eval-line program (cdr (cdr instr)))
+        ((eq? (car instr) 'goto)
+         (eval-line program (hash-ref l-hash (cadr instr))))
+        ((eq? (car instr) 'if)
+         (if (not (list? program));h_eval (cdr (car instr)))
+           (eval-line program (cadr (cdr instr)))
            (eval-line program (+ line-nr 1))))
         (else
           ;(,(hash-ref n-hash (car instr)) (cdr instr))
@@ -164,25 +164,20 @@
 ; This function takes a line number to execute.
 (define (eval-line program line-nr)
    (when (> (length program) line-nr)
-   (printf "DEBUG: Executing line ~a of ~a.~n" line-nr (length program))
-   (printf "       ~s~n" (list-ref program line-nr))
-   (let((line (list-ref program line-nr)))
-   (cond
-     ((= (length line) 3)
-      (set! line (cddr line))
-      (printf "DEBUG: Line had 3 elements.~n        ~s~n" line)
-      (printf "CDR: ~s~n" (car line))
-      ;(exec-line instr program line-nr))
-      (eval-line program (+ line-nr 1)))
-     ((= (length line) 2)
-      (set! line (cdr line))
-      (let((instr (car line)))
-      (printf "DEBUG: Line had 2 elements.~n       ~s~n" line)
-      (printf "       ~s~n" instr))
-      (eval-line program (+ line-nr 1)))
-     (else 
-       (eval-line program (+ line-nr 1)))
-   )))
+    (printf "DEBUG: Executing line ~a of ~a.~n" 
+            line-nr (length program))
+    (printf "       ~s~n" (list-ref program line-nr))
+    (let((line (list-ref program line-nr)))
+    (cond
+      ((= (length line) 3)
+       (set! line (cddr line))
+       (exec-line (car line) program line-nr))
+      ((and (= (length line) 2) (list? (cadr line)))
+       (set! line (cdr line))
+       (exec-line (car line) program line-nr))
+      (else 
+        (eval-line program (+ line-nr 1)))
+    )))
 )
 ; Function: Find the length of a list.
 (define length
@@ -197,7 +192,9 @@
 ;   (printf "==================================================~n")
    (map (lambda (line) 
           (when (not (null? line))
-            (when (= 3 (length line))
+            (when (or (= 3 (length line))
+                      (and (= 2 (length line)) 
+                           (not (list? (cadr line)))))
 ;                (printf "~a: ~s~n" (- (car line) 1) (cadr line))
 ;                (printf "    ~s~n" (list-ref program (- (car line) 1)))
                 (hash-set! l-hash (cadr line) (- (car line) 1 ))
@@ -217,7 +214,7 @@
             ; Set program = The list of commands in the inputfile.
             (program (readlist-from-inputfile sbprogfile))) 
         ; Fetch all the labels that occur in program
-        (hash-labels program) 
+        (hash-labels program)
         ; Execute the program.
         (eval-line program 0)
         ))
