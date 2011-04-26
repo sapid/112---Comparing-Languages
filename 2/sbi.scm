@@ -69,16 +69,6 @@
 ;; ==== Our functions ==========================================
 (define n-hash (make-hash)) ; Native function translation table
 (define l-hash (make-hash)) ; Label hash table
-(for-each
-  (lambda (pair)
-          (hash-set! n-hash (car pair) (cadr pair)))
-  `(      ; This hash table translates SB functions to our functions.
-      (print ,sb_print)
-      (dim   ,sb_dim)
-      (let   ,sb_let)
-      (input ,sb_input)
-      (if    (void))
-      (goto  (void))))
 (define (h_eval expr) ; Evaluates expressions.
   (printf "DEBUG: h_Evaluating...~n")
   (printf "       ~s~n" expr)
@@ -104,8 +94,7 @@
             (vector-ref head (cadr expr))))
       ((void))))))
 (define (sb_print expr) ; PRINTs. 
-  (unless (null? (car expr))
-   (map (lambda (x) (display (h_eval x))) expr))
+   (map (lambda (x) (display (h_eval x))) expr)
    (newline))
 (define (sb_dim expr) ; Declare an array.
   (printf "DEBUG: Declaring an array.~n")
@@ -131,7 +120,7 @@
            (eval-line program (+ line-nr 1))))
         ((eq? (car instr) 'print)
          (if (null? (cdr instr))
-           (newline)
+           ((newline))
            ((sb_print (cdr instr)) ; Bad identifier?!
             (eval-line program (+ line-nr 1)))))
         (else
@@ -192,4 +181,14 @@
         ; Execute the program.
         (eval-line program 0)
         )))
+(for-each
+  (lambda (pair)
+          (hash-set! n-hash (car pair) (cadr pair)))
+  `(      ; This hash table translates SB functions to our functions.
+      (print ,sb_print)
+      (dim   ,sb_dim)
+      (let   ,sb_let)
+      (input ,sb_input)
+      (if    (void))
+      (goto  (void))))
 (main (vector->list (current-command-line-arguments)))
