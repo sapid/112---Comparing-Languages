@@ -60,6 +60,11 @@
         (-       ,-)
         (*       ,*)
         (/       ,/)
+        (<=      ,<=)
+        (>=      ,>=)
+        (=       ,=)
+        (>       ,>)
+        (<       ,<)
         (^       ,expt)
         (ceil    ,ceiling)
         (exp     ,exp)
@@ -92,7 +97,7 @@
                  (arg2 (h_eval (caddr expr))))
                  (head arg1 arg2))
             (vector-ref head (cadr expr))))
-      ((void))))))
+      ((die ((car expr) " not in symbol table!~n")))))))
 
 (define (sb_print expr) ; PRINTs. Only called if there are print args.
    (map (lambda (x) (display (h_eval x))) expr)
@@ -104,8 +109,6 @@
     (symbol-put! (car expr) arr)))
 
 (define (sb_let expr) ; Assign a variable.
-  ;(printf "DEBUG: Declaring a variable.~n")
-  ;(printf "       ~s = ~s~n" (car expr) (cadr expr))
   (symbol-put! (car expr) (h_eval (cadr expr))))
 
 (define (sb_input expr) ; Take input.
@@ -121,8 +124,8 @@
         ((eq? (car instr) 'goto)
          (eval-line program (hash-ref l-hash (cadr instr))))
         ((eq? (car instr) 'if)
-         (if (not (list? program));h_eval (cdr (car instr)))
-           (eval-line program (cadr (cdr instr)))
+         (if (h_eval (car (cdr instr)))
+            (eval-line program (hash-ref l-hash (cadr (cdr instr))))
            (eval-line program (+ line-nr 1))))
         ((eq? (car instr) 'print)
          (if (null? (cdr instr))
@@ -138,9 +141,9 @@
 (define (eval-line program line-nr) ; Parse a line.
    ;(printf "Eval...~n")
    (when (> (length program) line-nr)
-    (printf "DEBUG: Executing line ~a of ~a.~n" 
-            line-nr (length program))
-    (printf "       ~s~n" (list-ref program line-nr))
+    ;(printf "DEBUG: Executing line ~a of ~a.~n" 
+    ;        line-nr (length program))
+    ;(printf "       ~s~n" (list-ref program line-nr))
     (let((line (list-ref program line-nr)))
     (cond
       ((= (length line) 3)
