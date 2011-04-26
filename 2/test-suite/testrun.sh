@@ -1,7 +1,7 @@
 #!/bin/sh -x
 # $Id: testrun.sh,v 1.1 2011-04-08 20:16:04-07 - - $
 
-checksource *.scm >check.log
+./checksource *.scm >check.log
 
 ./sbi.scm 00-hello-world.sbir  >00-hello-world.log  2>&1
 ./sbi.scm 01-1to10.sbir        >01-1to10.log        2>&1
