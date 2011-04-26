@@ -163,16 +163,17 @@
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
 (define (eval-line program line-nr)
-   (printf "DEBUG: Executing line.~n")
+   (when (> (length program) line-nr)
+   (printf "DEBUG: Executing line ~a of ~a.~n" line-nr (length program))
    (printf "       ~s~n" (list-ref program line-nr))
    (let((line (list-ref program line-nr)))
    (cond
      ((= (length line) 3)
       (set! line (cddr line))
       (printf "DEBUG: Line had 3 elements.~n        ~s~n" line)
-      (printf "CDR: ~s~n"(car line))
+      (printf "CDR: ~s~n" (car line))
       ;(exec-line instr program line-nr))
-      (eval-line program (+1 line-nr 1)))
+      (eval-line program (+ line-nr 1)))
      ((= (length line) 2)
       (set! line (cdr line))
       (let((instr (car line)))
@@ -181,7 +182,7 @@
       (eval-line program (+ line-nr 1)))
      (else 
        (eval-line program (+ line-nr 1)))
-   ))
+   )))
 )
 ; Function: Find the length of a list.
 (define length
@@ -220,8 +221,6 @@
         ; Execute the program.
         (eval-line program 0)
         ))
-   (let((blah 1))
-   (sb_input blah))
 )
 
 ; Execute the program!
