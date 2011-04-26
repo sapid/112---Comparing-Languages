@@ -12,9 +12,7 @@
 ;;   The file mentioned in argv[1] is read and assumed to be an
 ;;   SBIR program, which is the executed.  Currently it is only
 ;;   printed.
-;; ========================
-;;    Mackey's functions
-;; ========================
+;; == Mackey's functions =======================================
 ; Define *stderr*
 (define *stderr* (current-error-port))
 ; Function: Find the basename of the filename provided.
@@ -65,12 +63,9 @@
         (floor   ,floor)
         (log     ,log)
         (sqrt    ,sqrt)))
-;; ======================= 
-;;      Our functions
-;; ========================
+;; ==== Our functions ==========================================
 (define n-hash (make-hash)) ; Native function translation table
 (define l-hash (make-hash)) ; Label hash table
-
 (define (h_eval expr)
   (printf "DEBUG: h_Evaluating...~n")
   (printf "       ~s~n" expr)
@@ -94,31 +89,21 @@
                  (arg2 (h_eval (caddr expr))))
                 (head arg1 arg2))
             (vector-ref head (cadr expr))))
-      (0))))
-)
-
+      (0)))))
 (define (sb_print expr)
   (printf "DEBUG: Printing an expression.~n")
-  (printf "~s~n" (h_eval expr))
-)
-
+  (printf "~s~n" (h_eval expr)))
 (define (sb_dim expr)
   (printf "DEBUG: Declaring an array.~n")
   (let((arr (make-vector (cadr (h_eval expr)))))
-    (symbol-put! (car expr) arr))
-)
-
+    (symbol-put! (car expr) arr)))
 (define (sb_let expr)
   (printf "DEBUG: Declaring a variable.~n")
-  (symbol-put! (car expr) (h_eval expr))
-)
-
+  (symbol-put! (car expr) (h_eval expr)))
 (define (sb_input expr)
   (printf "DEBUG: Read in numbers.~n")
   (let((input (read)))
-    (symbol-put! (car expr) input))
-)
-
+    (symbol-put! (car expr) input)))
 (for-each
   (lambda (pair)
           (hash-set! n-hash (car pair) (cadr pair)))
@@ -128,8 +113,7 @@
       (let   ,sb_let)
       (input ,sb_input)
       (if    (void))
-      (goto  (void))
-   ))
+      (goto  (void))))
 ; Function: Execute a line passed by eval-line.
 (define (exec-line instr program line-nr)
   (when (not (hash-has-key? n-hash (car instr))) ; Die if invalid.
@@ -143,8 +127,7 @@
            (eval-line program (+ line-nr 1))))
         (else
           ;(,(hash-ref n-hash (car instr)) (cdr instr))
-          (eval-line program (+ line-nr 1))))
-)
+          (eval-line program (+ line-nr 1)))))
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
 (define (eval-line program line-nr)
@@ -162,15 +145,13 @@
        (exec-line (car line) program line-nr))
       (else 
         (eval-line program (+ line-nr 1)))
-    )))
-)
+    ))))
 ; Function: Find the length of a list.
 (define length
    (lambda (ls)
      (if (null? ls)
          0
-         (+ (length (cdr ls)) 1)))
-)
+         (+ (length (cdr ls)) 1))))
 ; Push the labels into the hash table.
 (define (hash-labels program)
 ;   (printf "Hashing labels:~n")
@@ -201,6 +182,5 @@
         (hash-labels program)
         ; Execute the program.
         (eval-line program 0)
-        ))
-)
+        )))
 (main (vector->list (current-command-line-arguments)))
