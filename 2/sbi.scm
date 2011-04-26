@@ -56,22 +56,13 @@
         (mod     ,(lambda (x y) (- x (* (div x y) y))))
         (quot    ,(lambda (x y) (truncate (/ x y))))
         (rem     ,(lambda (x y) (- x (* (quot x y) y))))
-        (+       ,+)
-        (-       ,-)
-        (*       ,*)
-        (/       ,/)
-        (<=      ,<=)
-        (>=      ,>=)
-        (=       ,=)
-        (>       ,>)
-        (<       ,<)
-        (^       ,expt)
-        (atan    ,atan)
-        (ceil    ,ceiling)
-        (exp     ,exp)
-        (floor   ,floor)
-        (log     ,log)
-        (sqrt    ,sqrt)))
+        (<>      ,(lambda (x y) (not (= x y))))
+        (+ ,+) (- ,-) (* ,*) (/ ,/) (abs ,abs) 
+        (<= ,<=) (>= ,>=) (= ,=) (> ,>) (tan ,tan)
+        (< ,<) (^ ,expt) (atan ,atan) (sin ,sin) (cos ,cos)
+        (ceil ,ceiling) (exp ,exp) (floor ,floor)
+        (asin ,asin) (acos ,acos) (round ,round)
+        (log ,log) (sqrt ,sqrt)))
 ;; ==== Our functions ==========================================
 (define n-hash (make-hash)) ; Native function translation table
 (define l-hash (make-hash)) ; Label hash table
@@ -92,26 +83,36 @@
       ;(printf "       is a list~n")
       (if (hash-has-key? *symbol-table* (car expr))
         (let((head (symbol-get (car expr))))
-          (if (not (vector? head))
-            (apply head (map (lambda (x) (h_eval x)) (cdr expr)))
-            (vector-ref head (cadr expr))))
-      (begin die ((car expr) " not in symbol table!~n"))))))
+          (cond 
+            ((procedure? head)
+             (apply head (map (lambda (x) (h_eval x)) (cdr expr))))
+            ((vector? head)
+             ;(printf "It's a vector.")
+             (vector-ref head (cadr expr)))
+            ((number? head)
+             ;(printf "It's a number.~n")
+             head)
+            (else
+              (die "Fatal: Broken symbol table."))))
+        (die (list "Fatal error: " 
+                   (car expr) " not in symbol table!\n"))))))
 
 (define (sb_print expr) ; PRINTs. Only called if there are print args.
    (map (lambda (x) (display (h_eval x))) expr)
    (newline))
 
 (define (sb_dim expr) ; Declare an array.
-  (printf "DEBUG: Declaring an array.~n")
-  (let((arr (make-vector (cadr (h_eval expr)))))
-    (symbol-put! (car expr) arr)))
+  (set! expr (car expr))
+  (let((arr (make-vector (h_eval (cadr expr)) (car expr))))
+    (symbol-put! (car expr) (+ (h_eval (cadr expr)) 1))))
 
 (define (sb_let expr) ; Assign a variable.
   (symbol-put! (car expr) (h_eval (cadr expr))))
 
 (define (sb_input expr) ; Take input.
   (let((input (read)))
-    (symbol-put! (car expr) input)))
+    (symbol-put! (car expr) input)
+    (symbol-put! 'inputcount (length input))))
 
 ; Function: Execute a line passed by eval-line.
 (define (exec-line instr program line-nr) ; Execute a line.
