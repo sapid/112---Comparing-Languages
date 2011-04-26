@@ -38,10 +38,9 @@
               (close-input-port inputfile)
                    program))))
 (define *symbol-table* (make-hash)) ; Symbol hash table
-(define (symbol-get key) ; Example: (symbol-get 'log10)
-        (hash-ref *symbol-table* key))
 (define (symbol-put! key value)
         (hash-set! *symbol-table* key value))
+;; ==== Our functions ==========================================
 ; Initialize the symbol table.
 (for-each
     (lambda (pair)
@@ -63,7 +62,6 @@
         (ceil ,ceiling) (exp ,exp) (floor ,floor)
         (asin ,asin) (acos ,acos) (round ,round)
         (log ,log) (sqrt ,sqrt)))
-;; ==== Our functions ==========================================
 (define n-hash (make-hash)) ; Native function translation table
 (define l-hash (make-hash)) ; Label hash table
 (define (h_eval expr) ; Evaluates expressions.
@@ -78,11 +76,11 @@
       expr)
     ((hash-has-key? *symbol-table* expr)
       ;(printf "       is a hash key~n")
-      (symbol-get expr))
+      (hash-ref *symbol-table* expr))
     ((list? expr)
       ;(printf "       is a list~n")
       (if (hash-has-key? *symbol-table* (car expr))
-        (let((head (symbol-get (car expr))))
+        (let((head (hash-ref *symbol-table*  (car expr))))
           (cond 
             ((procedure? head)
              (apply head (map (lambda (x) (h_eval x)) (cdr expr))))
@@ -137,7 +135,6 @@
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
 (define (eval-line program line-nr) ; Parse a line.
-   ;(printf "Eval...~n")
    (when (> (length program) line-nr)
     ;(printf "DEBUG: Executing line ~a of ~a.~n" 
     ;        line-nr (length program))
