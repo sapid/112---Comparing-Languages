@@ -82,7 +82,7 @@
 (define l-hash (make-hash)) ; Label hash table
 
 (define (h_eval expr)
-  (printf "DEBUG: Evaluating...~n")
+  (printf "DEBUG: h_Evaluating...~n")
   (printf "       ~s~n" expr)
   (cond
     ((string? expr)
@@ -97,19 +97,14 @@
     ((list? expr)
       (printf "       is a list~n")
       (if (hash-has-key? (car expr))
-        (let((vec (symbol-get (car expr))))
-          (if (not (vector? vec))
+        (let((head (symbol-get (car expr))))
+          (if (not (vector? head))
             (let(
-                (arg1 (h_eval (cadr expr)))
-                (arg2 (h_eval (caddr expr)))
-                )
-                (vec arg1 arg2)
-             )
-          (else
-            (let((pos (vector-ref vec (cadr expr))))
-              pos))))))   
-    (else 
-       0))
+                 (arg1 (h_eval (cadr expr)))
+                 (arg2 (h_eval (caddr expr))))
+                (head arg1 arg2))
+            (vector-ref head (cadr expr))))
+      (0))))
 )
 
 (define (sb_print expr)
@@ -142,8 +137,8 @@
       (dim   ,sb_dim)
       (let   ,sb_let)
       (input ,sb_input)
-      (if    ,sb_if)
-      (goto  ,sb_goto)
+      (if    (void))
+      (goto  (void))
    ))
 ; Function: Execute a line passed by eval-line.
 (define (exec-line instr program line-nr)
