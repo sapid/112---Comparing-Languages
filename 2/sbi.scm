@@ -106,11 +106,23 @@
 
 (define (sb_let expr) ; Assign a variable.
   (symbol-put! (car expr) (h_eval (cadr expr))))
+(define (sb_input2 expr count)
+  (if (null? expr)
+    count
+     (let ((input (read)))
+        (if (eof-object? input)
+          -1
+          (begin
+            (symbol-put! (car expr) input)
+            (set! count (+ 1 count))
+            (sb_input2 (cdr expr) count))))))
 
 (define (sb_input expr) ; Take input.
-  (let((input (read)))
-    (symbol-put! (car expr) input)
-    (symbol-put! 'inputcount (length input))))
+  (symbol-put! 'inputcount 0)
+  (if (null? (car expr))
+    (symbol-put! 'inputcount -1)
+    (begin
+    (symbol-put! 'inputcount (sb_input2 expr 0)))))
 
 ; Function: Execute a line passed by eval-line.
 (define (exec-line instr program line-nr) ; Execute a line.
