@@ -66,6 +66,7 @@
         (>       ,>)
         (<       ,<)
         (^       ,expt)
+        (atan    ,atan)
         (ceil    ,ceiling)
         (exp     ,exp)
         (floor   ,floor)
@@ -92,12 +93,9 @@
       (if (hash-has-key? *symbol-table* (car expr))
         (let((head (symbol-get (car expr))))
           (if (not (vector? head))
-            (let(
-                 (arg1 (h_eval (cadr expr)))
-                 (arg2 (h_eval (caddr expr))))
-                 (head arg1 arg2))
+            (apply head (map (lambda (x) (h_eval x)) (cdr expr)))
             (vector-ref head (cadr expr))))
-      ((die ((car expr) " not in symbol table!~n")))))))
+      (begin die ((car expr) " not in symbol table!~n"))))))
 
 (define (sb_print expr) ; PRINTs. Only called if there are print args.
    (map (lambda (x) (display (h_eval x))) expr)
@@ -112,7 +110,6 @@
   (symbol-put! (car expr) (h_eval (cadr expr))))
 
 (define (sb_input expr) ; Take input.
-  (printf "DEBUG: Read in numbers.~n")
   (let((input (read)))
     (symbol-put! (car expr) input)))
 
