@@ -104,8 +104,9 @@
     (symbol-put! (car expr) arr)))
 
 (define (sb_let expr) ; Assign a variable.
-  (printf "DEBUG: Declaring a variable.~n")
-  (symbol-put! (car expr) (h_eval expr)))
+  ;(printf "DEBUG: Declaring a variable.~n")
+  ;(printf "       ~s = ~s~n" (car expr) (cadr expr))
+  (symbol-put! (car expr) (h_eval (cadr expr))))
 
 (define (sb_input expr) ; Take input.
   (printf "DEBUG: Read in numbers.~n")
