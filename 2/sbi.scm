@@ -57,6 +57,9 @@
         (quot    ,(lambda (x y) (truncate (/ x y))))
         (rem     ,(lambda (x y) (- x (* (quot x y) y))))
         (+       ,+)
+        (-       ,-)
+        (*       ,*)
+        (/       ,/)
         (^       ,expt)
         (ceil    ,ceiling)
         (exp     ,exp)
@@ -66,7 +69,17 @@
 ;; ==== Our functions ==========================================
 (define n-hash (make-hash)) ; Native function translation table
 (define l-hash (make-hash)) ; Label hash table
-(define (h_eval expr)
+(for-each
+  (lambda (pair)
+          (hash-set! n-hash (car pair) (cadr pair)))
+  `(      ; This hash table translates SB functions to our functions.
+      (print ,sb_print)
+      (dim   ,sb_dim)
+      (let   ,sb_let)
+      (input ,sb_input)
+      (if    (void))
+      (goto  (void))))
+(define (h_eval expr) ; Evaluates expressions.
   (printf "DEBUG: h_Evaluating...~n")
   (printf "       ~s~n" expr)
   (cond
@@ -87,36 +100,26 @@
             (let(
                  (arg1 (h_eval (cadr expr)))
                  (arg2 (h_eval (caddr expr))))
-                (head arg1 arg2))
+                 (head arg1 arg2))
             (vector-ref head (cadr expr))))
       ((void))))))
-(define (sb_print expr)
-  (map (lambda (x) (display (h_eval x))) expr)
-  (newline))
-  ;(printf "~s~n" (list->string (map h_eval expr))))
-(define (sb_dim expr)
+(define (sb_print expr) ; PRINTs. 
+  (unless (null? (car expr))
+   (map (lambda (x) (display (h_eval x))) expr))
+   (newline))
+(define (sb_dim expr) ; Declare an array.
   (printf "DEBUG: Declaring an array.~n")
   (let((arr (make-vector (cadr (h_eval expr)))))
     (symbol-put! (car expr) arr)))
-(define (sb_let expr)
+(define (sb_let expr) ; Assign a variable.
   (printf "DEBUG: Declaring a variable.~n")
   (symbol-put! (car expr) (h_eval expr)))
-(define (sb_input expr)
+(define (sb_input expr) ; Take input.
   (printf "DEBUG: Read in numbers.~n")
   (let((input (read)))
     (symbol-put! (car expr) input)))
-(for-each
-  (lambda (pair)
-          (hash-set! n-hash (car pair) (cadr pair)))
-  `(      ; This hash table translates SB functions to our functions.
-      (print ,sb_print)
-      (dim   ,sb_dim)
-      (let   ,sb_let)
-      (input ,sb_input)
-      (if    (void))
-      (goto  (void))))
 ; Function: Execute a line passed by eval-line.
-(define (exec-line instr program line-nr)
+(define (exec-line instr program line-nr) ; Execute a line.
   (when (not (hash-has-key? n-hash (car instr))) ; Die if invalid.
         (die "~s is not a valid instruction." (car instr)))
   (cond
@@ -126,12 +129,17 @@
          (if (not (list? program));h_eval (cdr (car instr)))
            (eval-line program (cadr (cdr instr)))
            (eval-line program (+ line-nr 1))))
+        ((eq? (car instr) 'print)
+         (if (null? (cdr instr))
+           (newline)
+           ((sb_print (cdr instr)) ; Bad identifier?!
+            (eval-line program (+ line-nr 1)))))
         (else
           ((hash-ref n-hash (car instr)) (cdr instr))
           (eval-line program (+ line-nr 1)))))
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
-(define (eval-line program line-nr)
+(define (eval-line program line-nr) ; Parse a line.
    (when (> (length program) line-nr)
     (printf "DEBUG: Executing line ~a of ~a.~n" 
             line-nr (length program))
