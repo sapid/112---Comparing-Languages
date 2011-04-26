@@ -92,7 +92,8 @@
       (0)))))
 (define (sb_print expr)
   (printf "DEBUG: Printing an expression.~n")
-  (printf "~s~n" (h_eval expr)))
+  (printf "       ~s~n" expr)
+  (printf "~s~n" (map h_eval expr)))
 (define (sb_dim expr)
   (printf "DEBUG: Declaring an array.~n")
   (let((arr (make-vector (cadr (h_eval expr)))))
@@ -126,7 +127,7 @@
            (eval-line program (cadr (cdr instr)))
            (eval-line program (+ line-nr 1))))
         (else
-          ;(,(hash-ref n-hash (car instr)) (cdr instr))
+          ((hash-ref n-hash (car instr)) (cdr instr))
           (eval-line program (+ line-nr 1)))))
 ; Function: Walk through program and execute it. 
 ; This function takes a line number to execute.
