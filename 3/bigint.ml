@@ -41,7 +41,6 @@ module Bigint = struct
                        ((if sign = Pos then "" else "-") ::
                         (string_of_int (car reversed)) ::
                         (map (sprintf "%03d") (cdr reversed)))
-    
 
     let rec cmp list1 list2 = match (list1, list2) with
         | list1, []                 -> 1
@@ -52,7 +51,6 @@ module Bigint = struct
             else if car2 > car1
             then 0
             else cmp cdr1 cdr2
-            
 
     let rec add' list1 list2 carry = match (list1, list2, carry) with
         | list1, [], 0       -> list1
@@ -118,7 +116,20 @@ module Bigint = struct
 
     let rem = add
 
-    let pow = add
+    let rec pow' val1 val2 = 
+        if (car val2) = 1
+        then val1
+        else (mul' val1 (pow' val1 (sub' val2 [1] 0)))
+
+    let pow (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
+        if neg2 = Neg
+        then (Bigint (Pos, [])) (*May need be 0 *)
+        else if neg1 = Pos
+           then (Bigint (neg1, pow' value1 value2))
+           else if rem (Bigint (Pos, value2)) (Bigint (Pos, [2])) = (Bigint (Pos, [1]))
+               then (Bigint (Neg, pow' value1 value2))
+               else (Bigint (Pos, pow' value1 value2))
+
 
 end
 
