@@ -44,9 +44,6 @@ ${DEPSFILE} :
 	@ touch ${DEPSFILE}
 	${SUBMAKE} deps
 
-lis : ${ALLSRC}
-	mkpspdf ${LISTING} ${ALLSRC} ${DEPSFILE}
-
 again :
 	${SUBMAKE} spotless ci
 	${SUBMAKE} all lis
