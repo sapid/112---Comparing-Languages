@@ -52,7 +52,58 @@ module Bigint = struct
             else if car2 > car1
             then 0
             else cmp cdr1 cdr2
+            
+
+    let rec add' list1 list2 carry = match (list1, list2, carry) with
+        | list1, [], 0       -> list1
+        | [], list2, 0       -> list2
+        | list1, [], carry   -> add' list1 [carry] 0
+        | [], list2, carry   -> add' [carry] list2 0
+        | car1::cdr1, car2::cdr2, carry ->
+          let sum = car1 + car2 + carry
+          in  sum mod radix :: add' cdr1 cdr2 (sum / radix)
+
+    let rec sub' list1 list2 carry = match (list1, list2, carry) with
+        | list1, [], 0       -> list1
+        | [], list2, 0       -> list2
+        | list1, [], carry   -> sub' list1 [carry] 0
+        | [], list2, carry   -> sub' [carry] list2 0
+        | car1::cdr1, car2::cdr2, carry ->
+          let diff = car1 - car2 - carry
+          in diff mod radix :: sub' cdr1 cdr2 (diff / radix)
+
+    let sub (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
+        if (neg1 = Pos && neg2 = Pos)
+        then (
+            if (cmp value1 value2) = 1
+            then Bigint (neg1, sub' value1 value2 0)
+            else Bigint (Neg, sub' value2 value1 0))
+        else if (neg1 = Neg && neg2 = Neg)
+        then (
+            if (cmp value1 value2) = 1
+            then Bigint(neg1, add' value1 value2 0)
+            else Bigint(Pos, sub' value2 value1 0))
+        else Bigint(neg1, add' value1 value2 0)
     
+    let add (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
+        if neg1 = neg2
+        then Bigint (neg1, add' value1 value2 0)
+        else if (neg1 = Pos && neg2 = Neg)
+        then (
+            if (cmp value1 value2) = 1 
+            then Bigint(neg1, sub' value1 value2 0)
+            else Bigint(neg2, sub' value2 value1 0))
+        else if (neg1 = Neg && neg2 = Pos)
+        then (
+             if (cmp value1 value2) = 1
+             then Bigint(neg1, sub' value1 value2 0)
+             else Bigint(neg2, sub' value2 value1 0))
+        else (
+                if (cmp value1 value2) = 1
+                then Bigint(neg1, sub' value1 value2 0)
+                else Bigint(neg2, sub' value2 value1 0)
+            )
+
     let rec mul' val1 val2 =
          if (car val2) = 1
          then val1
@@ -61,7 +112,7 @@ module Bigint = struct
     let mul (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
          if neg1 = neg2
          then Bigint (Pos, mul' value1 value2)
-         else Bigint (Neg, mul' value1 value2)
+         else Bigint (Neg, mul' value1 value2)    
 
     let div = add
 
