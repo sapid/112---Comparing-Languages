@@ -36,19 +36,19 @@ let executebinop (thestack: stack_t) (oper: binop_t) =
 
 let execute (thestack: stack_t) (oper: char) =
     try match oper with
-        | '+'  -> executebinop thestack Bigint.add (* Done for positive *)
-        | '-'  -> executebinop thestack Bigint.sub (* Done for positive *)
+        | '+'  -> executebinop thestack Bigint.add 
+        | '-'  -> executebinop thestack Bigint.sub 
         | '*'  -> executebinop thestack Bigint.mul
         | '/'  -> executebinop thestack Bigint.div
         | '%'  -> executebinop thestack Bigint.rem
         | '^'  -> executebinop thestack Bigint.pow
-        | 'c'  -> Stack.clear thestack (* Clear the stack *)
-        | 'd'  -> push (Stack.top thestack) thestack (* Dup the top of stack *)
-        | 'f'  -> Stack.iter print_number thestack (* Print the whole stack *)
-        | 'l'  -> () (* Load a number from a character register *)
-        | 'p'  -> print_number (Stack.top thestack) (* Print top of stack *)
-        | 's'  -> () (* Needs to pop the top of the stack. *)
-        | '\n' -> () (* Done. Run the command *)
+        | 'c'  -> Stack.clear thestack 
+        | 'd'  -> push (Stack.top thestack) thestack 
+        | 'f'  -> Stack.iter print_number thestack 
+        | 'l'  -> () 
+        | 'p'  -> print_number (Stack.top thestack) 
+        | 's'  -> () 
+        | '\n' -> () 
         | ' '  -> ()
         | _    -> printf "%o is unimplemented\n%!" (ord oper)
     with Stack.Empty -> print_stackempty()

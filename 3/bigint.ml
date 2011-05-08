@@ -70,7 +70,15 @@ module Bigint = struct
         then Bigint (neg1, sub' value1 value2 0)
         else Bigint(neg1, add' value1 value2 0)
 
-    let mul = add
+    let rec mul' val1 val2 =
+         if (car val2) = 1
+         then val1
+         else (add' val1 (mul' val1 (sub' val2 [1] 0)) 0)
+
+    let mul (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
+         if neg1 = neg2
+         then Bigint (Pos, mul' value1 value2)
+         else Bigint (Neg, mul' value1 value2)
 
     let div = add
 
