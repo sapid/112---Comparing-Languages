@@ -112,9 +112,20 @@ module Bigint = struct
          then Bigint (Pos, mul' value1 value2)
          else Bigint (Neg, mul' value1 value2)    
 
-    let div = add
+    let rec div' value1 value2 ans =
+        if (cmp value1 value2) = 0
+        then (ans, value1)
+        else (div' (sub' value1 value2 0) value2 (add' ans [1] 0))
 
-    let rem = add
+    let div (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
+        if neg1 = neg2
+        then Bigint(Pos, fst(div' value1 value2 [0]))
+        else Bigint(Neg, fst(div' value1 value2 [0]))
+
+    let rem (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
+        if neg1 = neg2
+        then Bigint(neg1, snd(div' value1 value2 [0]))
+        else Bigint(Neg, snd(div' value1 value2 [0]))
 
     let rec pow' val1 val2 = 
         if (car val2) = 1

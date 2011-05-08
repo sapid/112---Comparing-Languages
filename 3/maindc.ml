@@ -16,13 +16,13 @@ let registers = Hashtbl.create 1;;
 
 let print_number number = printf "%s\n%!" (string_of_bigint number)
 
-let print_stackempty () = printf "stack empty\n%!"
+let print_stackempty () = printf "dc: stack empty\n%!"
 
 let executereg (thestack: stack_t) (oper: char) (reg: int) =
    try match oper with
       | 'l' -> push (Hashtbl.find registers reg) thestack
       | 's' -> Hashtbl.replace registers reg (pop thestack)
-      | _   -> printf "%o %o is unimplemented\n%!" (ord oper) reg
+      | _   -> printf "dc (%o) %o is unimplemented\n%!" (ord oper) reg
    with Stack.Empty -> print_stackempty()
 
 let executebinop (thestack: stack_t) (oper: binop_t) =
@@ -50,7 +50,7 @@ let execute (thestack: stack_t) (oper: char) =
         | 's'  -> () 
         | '\n' -> () 
         | ' '  -> ()
-        | _    -> printf "%o is unimplemented\n%!" (ord oper)
+        | _    -> printf "dc: '%c' (%o) is unimplemented\n%!" oper (ord oper)
     with Stack.Empty -> print_stackempty()
 
 let toploop (thestack: stack_t) inputchannel =
