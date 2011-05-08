@@ -1,5 +1,3 @@
-(* $Id: bigint.mli,v 1.1 2011-04-26 13:39:18-07 - - $ *)
-
 module Bigint : sig
    type bigint
    val bigint_of_string : string -> bigint

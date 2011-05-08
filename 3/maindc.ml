@@ -1,5 +1,3 @@
-(* $Id: maindc.ml,v 1.3 2011-04-26 13:55:13-07 - - $ *)
-
 include Scanner
 include Bigint
 

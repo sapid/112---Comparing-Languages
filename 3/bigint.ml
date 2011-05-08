@@ -1,5 +1,3 @@
-(* $Id: bigint.ml,v 1.2 2011-04-26 13:55:13-07 - - $ *)
-
 open Printf
 
 module Bigint = struct
