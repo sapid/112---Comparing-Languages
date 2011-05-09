@@ -143,7 +143,8 @@ module Bigint = struct
         then (Bigint (Pos, [])) (*May need be 0 *)
         else if neg1 = Pos
            then (Bigint (neg1, pow' value1 value2))
-           else if rem (Bigint (Pos, value2)) (Bigint (Pos, [2])) = (Bigint (Pos, [1]))
+           else if rem (Bigint (Pos, value2)) (Bigint (Pos, [2])) = 
+                       (Bigint (Pos, [1]))
                then (Bigint (Neg, pow' value1 value2))
                else (Bigint (Pos, pow' value1 value2))
 

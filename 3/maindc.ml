@@ -17,7 +17,8 @@ let registers = Hashtbl.create 1;;
 let rec print_number number = 
     if (String.length (string_of_bigint number)) > 69 then (
         printf "%s\\\n%!" (String.sub (string_of_bigint number) 0 68);
-        print_number (bigint_of_string (String.sub (string_of_bigint number) 69 ((String.length (string_of_bigint number)) - 69)))
+        print_number (bigint_of_string (String.sub (string_of_bigint 
+        number) 69 ((String.length (string_of_bigint number)) - 69)))
     )
     else printf "%s\n%!" (string_of_bigint number)
 
@@ -55,7 +56,8 @@ let execute (thestack: stack_t) (oper: char) =
         | 's'  -> () 
         | '\n' -> () 
         | ' '  -> ()
-        | _    -> printf "dc: '%c' (%o) is unimplemented\n%!" oper (ord oper)
+        | _    -> printf "dc: '%c' (%o) is unimplemented\n%!" oper 
+                  (ord oper)
     with Stack.Empty -> print_stackempty()
 
 let toploop (thestack: stack_t) inputchannel =
