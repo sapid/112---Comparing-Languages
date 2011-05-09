@@ -118,14 +118,20 @@ module Bigint = struct
         else (div' (sub' value1 value2 0) value2 (add' ans [1] 0))
 
     let div (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
-        if neg1 = neg2
-        then Bigint(Pos, fst(div' value1 value2 [0]))
-        else Bigint(Neg, fst(div' value1 value2 [0]))
+        if (car value2) <> 0 then (
+            if neg1 = neg2
+            then Bigint(Pos, fst(div' value1 value2 [0]))
+            else Bigint(Neg, fst(div' value1 value2 [0]))
+        )
+        else(printf "dc: division by zero\n"; Bigint(Pos,[0]))
 
-    let rem (Bigint (neg1, value1)) (Bigint (neg2, value2)) =
-        if neg1 = neg2
-        then Bigint(neg1, snd(div' value1 value2 [0]))
-        else Bigint(Neg, snd(div' value1 value2 [0]))
+    let rem (Bigint (neg1, value1)) (Bigint (neg2, value2)) = 
+        if (car value2) <> 0 then (
+            if neg1 = neg2
+            then Bigint(neg1, snd(div' value1 value2 [0]))
+            else Bigint(Neg, snd(div' value1 value2 [0]))
+        )
+        else (printf "dc: remainder by zero\n"; Bigint(Pos,[0]))
 
     let rec pow' val1 val2 = 
         if (car val2) = 1
