@@ -14,7 +14,12 @@ type binop_t = bigint -> bigint -> bigint
 
 let registers = Hashtbl.create 1;;
 
-let print_number number = printf "%s\n%!" (string_of_bigint number)
+let rec print_number number = 
+    if (String.length (string_of_bigint number)) > 69 then (
+        printf "%s\\\n%!" (String.sub (string_of_bigint number) 0 68);
+        print_number (bigint_of_string (String.sub (string_of_bigint number) 69 ((String.length (string_of_bigint number)) - 69)))
+    )
+    else printf "%s\n%!" (string_of_bigint number)
 
 let print_stackempty () = printf "dc: stack empty\n%!"
 
