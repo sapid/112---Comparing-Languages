@@ -29,8 +29,8 @@ Exactly one of these options is required
 "
 
 "
-This extends FileStream. I think this will be useful for parsing the file.
-As found in catfile.st under Smalltalk examples from Mackey
+This extends FileStream. I think this will be useful for parsing the 
+file. As found in catfile.st under Smalltalk examples from Mackey
 "
 FileStream extend [
     nl := Character nl.
