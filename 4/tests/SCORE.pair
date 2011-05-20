@@ -1,0 +1,49 @@
+
+Grader:  Check that the student is working alone or doing pair
+programming with a partner.  If the student is working alone,
+ignore this file and do not deduct any points described here.
+If the students are working in a pair, grade *ONLY* one of the
+pair's work.
+
+Make a *relative* symlink in the non-graded partner's directory
+called SCORE pointing at the SCORE file in this directory.  Do
+not copy the SCORE file and do not edit using the symlink.
+Create the symlink via:
+.   ln -s ../(partner)/SCORE
+where (partner) is the partner's actual username.  After that,
+ls -la should show something like
+.   lrwxr-xr-x   17 Jun 10 18:04 SCORE -> ../(partner)/SCORE
+
+(3) Did both partners' names and usernames appear in a comment
+    at or near the top of all text files submitted (except see
+    below for PARTNER file)?
+
+(3) Did they both submit a README which contained the required
+    pair programming log, as per Figure 1 of the pair
+    programming document?
+
+(4) Was the PARTNER file exactly correctly formatted?  Use
+    partnercheck to verify this.  Both partners must have a
+    PARTNER file pointing at each other for either of them to
+    get these points.  Both users' PARTNER files must be reported
+    as valid by the partnercheck script.  The PARTNER file must
+    contain the partner's username and NOTHING else.
+
+These files must be spelled README and PARTNER, respectively, in
+exactly that way, in upper case.  Add up the negative points
+above and enter that on the TOTAL1 line.
+
+TOTAL1=
+.between -10 and 0, inclusive.
+
+If this is a programming project graded out of 60 points, reduce
+TOTALSCORE in the SCORE file by TOTAL1.  Ignore TOTAL2.
+
+If this is a lab exercise (12L or 12M), graded out of 30 points,
+set TOTAL2 = TOTAL1 / 2, using integer division, and reduce the
+TOTALSCORE in the SCORE file by the points listed as TOTAL2.
+
+TOTAL2=
+.between -5 and 0, inclusive.
+
+$Id: SCORE.pair,v 1.4 2010-12-09 18:47:59-08 - - $

@@ -1,0 +1,82 @@
+ ZZZ 
+Grader:  copy this file into the student's directory and grade
+according to the following point values.  There are a max of 30
+points for the program and 30 points for the test run.  
+
+The numbers in parens are the max points for a particular section.
+Enter some number between 0 and the max depending on the quality
+of the work.
+
+________________________________________________________________________
+PROGRAM SOURCE CODE. (30)
+
+total source code: /30
+min 1, max 30.
+
+   (3) checksource hzip.st >checksource.log
+       Deduct nr.complaints / 5, but not worse then (-3)
+
+   (3) Submitted hzip.st with the x bit turned on
+
+   (3) Code to handle options word
+
+   (3) Class BitStream or extends FileStream to handle I/O
+       one bit at a time.
+
+   (3) Code to build the Huffman tree
+
+   (3) Code to output the tree into a file
+
+   (3) Code to read the tree from a file
+
+   (3) Code to compress a file and write it
+
+   (3) Code to uncompress a file and write it
+
+   (3) Error messages printed to stderr when something fails.
+
+________________________________________________________________________
+TEST RUN.  (30)
+
+Run mk.tests and check the output.
+
+   (4) is the frequency table correct for test5.frequencies
+
+For each of the following, check to see if the compression
+and decompression restored the original file.  Use diff where
+possible.  Note that the zero, uniform, and gif compressed are
+probably large than the original.
+
+   (4) test0.zero.in
+
+   (4) test1.uniform.in
+
+   (4) test3.gif.in
+
+   (4) test4.aaaaaaaa.in
+
+   (4) test5.ps.in
+
+   (4) test6.huffman.in
+
+   (4) test7.etaoin.in
+
+The perfect total for all of the above is 32, but do not
+record more than 30 if everything is perfect.  Everyone gets
+2 free errors without loss of score.
+
+total testing: /30
+min 0, max 30
+
+________________________________________________________________________
+
+Add program + testing totals, giving:
+SUBTOTAL=
+
+If pair programming, TOTALSCORE = SUBTOTAL - TOTAL1.
+If not, TOTALSCORE = SUBTOTAL.
+
+TOTALSCORE=
+
+$Id: SCORE,v 1.2 2011-05-17 21:10:54-07 - - $
+

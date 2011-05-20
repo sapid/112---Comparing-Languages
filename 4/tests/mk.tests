@@ -1,0 +1,9 @@
+#!/bin/sh
+# $Id: mk.tests,v 1.1 2011-05-17 21:05:18-07 - - $
+checksource hzip.st >checksource.log
+for file in test*.in
+do
+   hzip.st -c $file $file.hzipped
+   hzip.st -u $file.hzipped >$file.unzipped
+done
+hzip.st -t test5.ps.in >test5.frequencies

@@ -1,0 +1,136 @@
+#!/usr/bin/perl -w
+# $Id: test6.huffman.in,v 1.1 2011-05-17 21:03:05-07 - - $
+#
+# Perl solution to the cmps012b Huffman Coding assignment.
+#
+
+################################################################
+
+package Tree;
+
+sub new{
+   my( $class, $char, $count, @child ) = @_;
+   my( $this ) = { CHAR=>$char, COUNT=>$count, CHILD=>[ @child ] };
+   return bless $this, $class;
+};
+
+sub compare{
+   my( $this, $other ) = @_;
+   return $$this{COUNT} <=> $$other{COUNT}
+       || $$this{CHAR}  <=> $$other{CHAR};
+};
+
+################################################################
+
+package Priority_Queue;
+
+sub new{
+   my( $class ) = @_;
+   my( $this ) = [];
+   return bless $this, $class;
+};
+
+sub insert{
+   my( $this, $node ) = @_;
+   my( $parent, $child );
+   push @$this, $node;
+   for( $child = @$this; $parent = $child >> 1; $child = $parent ){
+      last if $$this[$parent-1]->compare( $$this[$child-1] ) < 0;
+      @$this[ $parent-1, $child-1 ] = @$this[ $child-1, $parent-1 ];
+   };
+};
+
+sub remove{
+   my( $this ) = @_;
+   my $result = shift @$this;
+   if( @$this ){
+      my( $parent, $child );
+      unshift @$this, pop @$this;
+      for( $parent = 1; ; $parent = $child ){
+         $child = $parent << 1;
+         last if $child > @$this;
+         $child++ if $child < @$this
+                 and $$this[$child]->compare( $$this[$child-1] ) < 0;
+         last if $$this[$parent-1]->compare( $$this[$child-1] ) < 0;
+         @$this[ $parent-1, $child-1 ] = @$this[ $child-1, $parent-1 ];
+      };
+   };
+   return $result;
+};
+
+################################################################
+
+package main;
+use POSIX qw( isgraph );
+$EOFCODE = 256;
+
+sub encode{
+   my( $tree, $bits ) = @_;
+   if( not defined $bits ){
+      local( $codes ) = {};
+      encode( $tree, "" ) if defined $tree;
+      return $codes;
+   }else{
+      if( @{$$tree{CHILD}} ){
+         map { encode( ${$$tree{CHILD}}[$_], "$bits$_" ) } (0,1);
+      }else{
+         $$codes{$$tree{CHAR}} = { COUNT=>$$tree{COUNT}, CODE=>$bits };
+      };
+   };
+};
+
+sub huffman(**){
+   my( $infile, $outfile ) = @_;
+   my( %freq_table, $line, @pair, $node0, $node1 );
+
+   map { $freq_table{ ord $_ }++ } split m//, $line
+         while defined( $line = <$infile> );
+   $freq_table{ $EOFCODE } = 0;
+
+   my $queue = new Priority_Queue;
+   insert $queue( new Tree @pair ) while @pair = each %freq_table;
+
+   for(;;){
+      $node0 = remove $queue;
+      $node1 = remove $queue;
+      last unless defined $node1;
+      insert $queue( new Tree $$node0{CHAR},
+            $$node0{COUNT} + $$node1{COUNT}, $node0, $node1 );
+   };
+   my $codes_vector = encode $node0;
+
+   for $ordchar( sort { $a <=> $b } keys %$codes_vector ){
+      my $char = chr $ordchar;
+      my $charstr = $ordchar == $EOFCODE ? "EOF"
+                  : isgraph( $char ) ? $char
+                  : sprintf( "\\x%02X", $ordchar );
+      printf $outfile "%4s %8d %s\n", $charstr,
+             @{$$codes_vector{$ordchar}}{ COUNT, CODE };
+   };
+
+};
+
+( $Program_Name = $0 ) =~ s{.*/}{};
+$Exit_Status = 0;
+
+if( not @ARGV ){
+   huffman STDIN, STDOUT;
+}else{
+   while( @ARGV ){
+      my( $infilename ) = shift @ARGV;
+      my( $outfilename ) = "$infilename.coding" =~ m{([^/]*$)};
+      if( not open( INFILE, "<$infilename" )){
+         print STDERR "$Program_Name: $infilename: $!\n";
+         $Exit_Status = 1;
+      }elsif( not open( OUTFILE, ">$outfilename" )){
+         print STDERR "$Program_Name: $outfilename: $!\n";
+         $Exit_Status = 1;
+      }else{
+         huffman INFILE, OUTFILE;
+      };
+      close INFILE;
+      close OUTFILE;
+   };
+};
+exit $Exit_Status;
+
