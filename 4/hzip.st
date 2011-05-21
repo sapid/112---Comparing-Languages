@@ -24,7 +24,7 @@ Exactly one of these options is required
   -c    The input file is compressed and written to the output file, if
         specified, or to the standard output, if not.
   -u    The input file is assumed to be compressed, and is uncompressed,
-        writeen to the output file, if specified, or to the std output 
+        written to the output file, if specified, or to the std output 
         if not
 "
 
