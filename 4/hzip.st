@@ -29,6 +29,52 @@ Exactly one of these options is required
 "
 
 "
+Because smalltalk indexes arrays starting with 1 this class is needed to make
+parsing the file cleaner. As found in charfreq.st from Mackey
+"
+Object sublcass: ZeroArray [
+    |theArray|
+
+    ZeroArray class >> new [
+        self shouldNotImplement.
+    ]
+
+    ZeroArray class >> new: size [
+        |result|
+        result := super new.
+        result init: size.
+        ^ result
+    ]
+
+    init: size [
+        theArray := Array new: size.
+    ]
+
+    size [
+        ^ theArray size.
+    ]
+
+    at: index [
+        ^ theArray at: index + 1.
+    ]
+
+    at: index put: value [
+        ^ theArray at: index + 1 put: value.
+    ]
+
+    incr: index [
+        (self at: index) isNil
+            ifTrue: [ self at: index put: 0].
+        self at: index put: (self at: index) + 1.
+    ]
+
+    keysAndValuesDo: aBlock [
+        (0 to: (self size) - 1) do: [:index |
+            aBlock value: index value: (self at: index).
+        ]
+    ]
+]
+"
 This extends FileStream. I think this will be useful for parsing the 
 file. As found in catfile.st under Smalltalk examples from Mackey
 "
@@ -44,6 +90,7 @@ FileStream extend [
         ]
     ]
 ]
+
 
 "
 This defines Leaf Class. We will extend this to match our needs for zip.
