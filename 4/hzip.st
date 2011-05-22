@@ -43,6 +43,16 @@ FileStream extend [
             stdout << count << ': ' << self nextLine << nl.
         ]
     ]
+    parseFile [
+      freqtable := ZeroArray new: 256
+      [self atEnd not] whileTrue: [
+         |ordChar|
+         ordChar := stdin next asInteger.
+         freqtable incr: ordChar.
+      ]
+      freqtable incr: 256.
+      ^freqtable
+    ]
 ]
 
 "
