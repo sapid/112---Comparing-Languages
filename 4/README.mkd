@@ -1,0 +1,25 @@
+The goal of this program is to provide relatively simple Huffman encoding and decoding for arbitrary files.
+
+USAGE:
+hzip.st -dtcu inputfile [outfile]
+
+
+Options:
+Exactly one of these options is required
+
+  -d    Debug information is printed for the benefit of the 
+        application author
+  -t    The compression algorithm is activated, and the decoding tree  
+        is printed to the standard output. the output filename may not
+        be specified.
+  -c    The input file is compressed and written to the output file, if
+        specified, or to the standard output, if not.
+  -u    The input file is assumed to be compressed, and is uncompressed,
+        written to the output file, if specified, or to the std output 
+        if not
+
+
+Next steps:
+   - Construct a frequency table with indices 0-256. Increase counts for each index as a char is read in.
+   - Construct a priority-queue of those indices.
+   - Construct a tree from the values in the priority queue.

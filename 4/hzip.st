@@ -47,7 +47,7 @@ FileStream extend [
       freqtable := ZeroArray new: 256
       [self atEnd not] whileTrue: [
          |ordChar|
-         ordChar := stdin next asInteger.
+         ordChar := self next asInteger.
          freqtable incr: ordChar.
       ]
       freqtable incr: 256.
