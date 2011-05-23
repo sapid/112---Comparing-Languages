@@ -30,8 +30,8 @@ Exactly one of these options is required
 "
 
 "
-Because smalltalk indexes arrays starting with 1 this class is needed to make
-parsing the file cleaner. As found in charfreq.st from Mackey
+Because smalltalk indexes arrays starting with 1 this class is needed to
+make parsing the file cleaner. As found in charfreq.st from Mackey
 "
 Object subclass: ZeroArray [
     |theArray|
@@ -110,7 +110,7 @@ As found in tree.st under Smalltalk examples from Mackey
 Object subclass: Leaf [
     |char count|
     char [ ^ char ]
-    count [ ^ count]
+    count [ ^ count ]
 
     Leaf class >> new [
         self shouldNotImplement
@@ -123,17 +123,15 @@ Object subclass: Leaf [
         ^result
     ]
 
-    setChar: aChar count: aCount [
+    setChar: aChar andCount: aCount [
         char := aChar.
         count := aCount.
     ]
-    "
-    I think this is useless?
+
     <= other [
         ^ (count < other count)
         | ((count = other count) & (char <= other char))
     ]
-    "
 
     printBase: aStream [
         ^ aStream << self class << '(' << char << ',' << count
@@ -143,9 +141,10 @@ Object subclass: Leaf [
         (self printBase: aStream) << ')'.
     ]
 
-    inorder: visitor prefix: string [
+    inoder: visitor prefix: string [
         visitor value: char value: string.
     ]
+
 ]
 
 "
@@ -246,7 +245,9 @@ dFlag ifTrue: [
 readfile := FileStream open: infile 
                        mode: FileStream read.
 "
-Here, we want to read in values from our frequency table and put its values in a sorted collection as tuples. Tuple: (index, value). Sort the collection by value. This will function as a priority queue.
+Here, we want to read in values from our frequency table and put 
+its values in a sorted collection as tuples. Tuple: (index, value). 
+Sort the collection by value. This will function as a priority queue.
 "
 "readfile catFile."
 |frequencyTable|
@@ -261,15 +262,15 @@ do: [:index |
 ].
 |pq|
 pq := SortedCollection new.
-pq := SortedCollection sortBlock: [:a :c | [a count] <= [c count]].
 (0 to: frequencyTable size -1)
 do: [ :index |
-   |aLeaf|
-   [frequencyTable at: count = nil] ifFalse: [
-   aLeaf := Leaf new
-   aLeaf setChar: index setCount: [frequencyTable a: index].
+   |aLeaf aCount aChar|
+   "[frequencyTable at: count = nil] ifFalse: ["
+   aCount := frequencyTable at: index.
+   aChar := index asCharacter.
+   aLeaf := Leaf new: aChar  count: aCount.
    pq add: aLeaf.
-   ].
+   "]."
 ].
-pq first display.
 readfile close.
+pq inspect.
