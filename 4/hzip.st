@@ -134,9 +134,13 @@ Object subclass: Leaf [
       ^ theBag add: (char theString).
    ]
    encodingDump: theString [
-      |theBag|
+      |theBag theItem|
       theBag := Bag new.
-      ^ theBag add: (char theString).
+      theItem := Array new: 2.
+      theItem
+         at: 1 put: char;
+         at: 2 put: theString.
+      ^ theBag add: theItem.
    ]
 
     <= other [
@@ -151,7 +155,7 @@ Object subclass: Leaf [
         (self printBase: aStream) << ')'.
     ]
 
-    inoder: visitor prefix: string [
+    inorder: visitor prefix: string [
         visitor value: char value: string.
     ]
 
@@ -187,12 +191,17 @@ Leaf subclass: Tree [
       ^ theBag addAll: [right encodingCreate: nextString.].
    ]
    encodingDump:  theString [
-      |nextString theBag|
+      |nextString theBag addMe|
       theBag := Bag new.
       nextString := theString, '0'.
-      theBag addAll: [left encodingDump: nextString.].
+      addMe := left encodingDump: nextString.
+      addMe do: [
+
+      ]
+      theBag addAll: addMe.
       nextString := theString, '1'.
-      ^ theBag addAll: [right encodingDump: nextString.].
+      addMe := right encodingDump: nextString.
+      ^ theBag addAll: addMe.
    ]
 
    printOn: aStream [
@@ -303,8 +312,8 @@ dFlag ifTrue: [pq inspect.].
 
 [pq size > 1] whileTrue: [
     |last seclast aTree treeChar treeCount|
-    last := pq removeLast.
-    seclast := pq removeLast.
+    last := pq removeFirst.
+    seclast := pq removeFirst.
     treeChar := last char.
     treeCount := last count + seclast count.
     aTree := Tree new: treeChar count: treeCount left: last right: seclast.
@@ -314,9 +323,15 @@ dFlag ifTrue: [pq inspect.].
 |theTree|
 theTree := pq removeLast.
 |theEncodingBag theString|
-tFlag ifTrue: [
+theTree inorder: [:char :string |
+   |index count|
+   index := char asInteger.
+   count := frequencyTable at: index.
+   stdout << char << ' ' << count << ' ' << string << nl.
+] prefix: ''.
+"tFlag ifTrue: [
    theString := ''.
    theEncodingBag := Bag new.
-   theEncodingBag addAll: [theTree encodingDump: theString.].
-   theEncodingBag display.].
+   theTree encodingDump: theString
+   theEncodingBag inspect.]. "
       "ifFalse: [theEncodingBag := theTree encodingCreate: theString.]."
