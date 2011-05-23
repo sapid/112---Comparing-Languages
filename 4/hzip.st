@@ -271,3 +271,14 @@ do: [ :index |
 ].
 readfile close.
 dFlag ifTrue: [pq inspect.].
+
+[pq size > 1] whileTrue: [
+    |last seclast aTree treeChar treeCount|
+    last := pq removeLast.
+    seclast := pq removeLast.
+    treeChar := last char.
+    treeCount := last count + seclast count.
+    aTree := Tree new: treeChar count: treeCount left: last right: seclast.
+    pq add: aTree.
+].
+dFlag ifTrue: [pq inspect.].
