@@ -265,12 +265,12 @@ pq := SortedCollection new.
 (0 to: frequencyTable size -1)
 do: [ :index |
    |aLeaf aCount aChar|
-   "[frequencyTable at: count = nil] ifFalse: ["
    aCount := frequencyTable at: index.
-   aChar := index asCharacter.
-   aLeaf := Leaf new: aChar  count: aCount.
-   pq add: aLeaf.
-   "]."
+   aCount isInteger ifTrue: [
+       aChar := index asCharacter.
+       aLeaf := Leaf new: aChar  count: aCount.
+       pq add: aLeaf.
+   ].
 ].
 readfile close.
 pq inspect.
