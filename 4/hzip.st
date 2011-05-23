@@ -127,6 +127,17 @@ Object subclass: Leaf [
         char := aChar.
         count := aCount.
     ]
+   " Does this work? "
+   encodingCreate: theString [
+      |theBag|
+      theBag := Bag new.
+      ^ theBag add: (char theString).
+   ]
+   encodingDump: theString [
+      |theBag|
+      theBag := Bag new.
+      ^ theBag add: (char theString).
+   ]
 
     <= other [
         ^ (count < other count)
@@ -136,7 +147,6 @@ Object subclass: Leaf [
     printBase: aStream [
         ^ aStream << self class << '(' << char << ',' << count
     ]
-
     printOn: aStream [
         (self printBase: aStream) << ')'.
     ]
@@ -161,9 +171,28 @@ Leaf subclass: Tree [
        ^ result
    ]
 
+   isLeaf [ ^ true ]
+
    setLeft: aLeft andRight: aRight [
        left := aLeft.
        right := aRight.
+   ]
+   " Does this work? "
+   encodingCreate:  theString [
+      |nextString theBag|
+      theBag := Bag new.
+      nextString := theString bitShift: 1.
+      theBag addAll: [left encodingCreate: nextString.].
+      nextString := theString + 1.
+      ^ theBag addAll: [right encodingCreate: nextString.].
+   ]
+   encodingDump:  theString [
+      |nextString theBag|
+      theBag := Bag new.
+      nextString := theString, '0'.
+      theBag addAll: [left encodingDump: nextString.].
+      nextString := theString, '1'.
+      ^ theBag addAll: [right encodingDump: nextString.].
    ]
 
    printOn: aStream [
@@ -282,3 +311,12 @@ dFlag ifTrue: [pq inspect.].
     pq add: aTree.
 ].
 dFlag ifTrue: [pq inspect.].
+|theTree|
+theTree := pq removeLast.
+|theEncodingBag theString|
+tFlag ifTrue: [
+   theString := ''.
+   theEncodingBag := Bag new.
+   theEncodingBag addAll: [theTree encodingDump: theString.].
+   theEncodingBag display.].
+      "ifFalse: [theEncodingBag := theTree encodingCreate: theString.]."
