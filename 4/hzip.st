@@ -80,7 +80,7 @@ This extends FileStream. I think this will be useful for parsing the
 file. As found in catfile.st under Smalltalk examples from Mackey
 "
 FileStream extend [
-    "nl := Character nl.
+    nl := Character nl.
     catFile [
         |count|
         count := 0.
@@ -89,23 +89,19 @@ FileStream extend [
             count asString size to: 5 do: [:skip| stdout << ' '].
             stdout << count << ': ' << self nextLine << nl.
         ]
-    ]"
+    ]
     parseFile [
       |freqtable|
-      freqtable := ZeroArray new: 256.
+      freqtable := ZeroArray new: 257.
       [self atEnd not] whileTrue: [
          |ordChar|
          ordChar := self next asInteger.
          freqtable incr: ordChar.
       ].
-      "freqtable incr: 256."
+      freqtable incr: 256.
       ^ freqtable
     ]
 ]
-
-"
-This defines 
-"
 
 "
 This defines Leaf Class. We will extend this to match our needs for zip.
@@ -253,14 +249,27 @@ readfile := FileStream open: infile
 Here, we want to read in values from our frequency table and put its values in a sorted collection as tuples. Tuple: (index, value). Sort the collection by value. This will function as a priority queue.
 "
 "readfile catFile."
-|testitem|
-testitem := readfile parseFile.
-(0 to: testitem size -1)
+|frequencyTable|
+frequencyTable := readfile parseFile.
+(0 to: frequencyTable size -1)
 do: [:index |
     index display.
     ' ' display.
-    item := testitem at: index.
+    item := frequencyTable at: index.
     item display.
     nl display.
 ].
+|pq|
+pq := SortedCollection new.
+pq := SortedCollection sortBlock: [:a :c | [a count] <= [c count]].
+(0 to: frequencyTable size -1)
+do: [ :index |
+   |aLeaf|
+   [frequencyTable at: count = nil] ifFalse: [
+   aLeaf := Leaf new
+   aLeaf setChar: index setCount: [frequencyTable a: index].
+   pq add: aLeaf.
+   ].
+].
+pq first display.
 readfile close.
