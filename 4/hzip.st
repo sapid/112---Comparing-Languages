@@ -152,32 +152,28 @@ This defines Tree Class. We will extend this to match our needs for zip.
 As found in tree.st under Smalltalk examples from Mackey
 "
 Leaf subclass: Tree [
-    |left right|
+   |left right|
 
-    Tree class >> new: aChar count: aCount [
-        self shouldNotImplement
-    ]
+   Tree class >> new: aChar count: aCount left: aLeft right: aRight [
+       |result|
+       result := super new: aChar count: aCount.
+       result setLeft: aLeft andRight: aRight.
+       ^ result
+   ]
 
-    Tree class >> new: aChar count: aCount left: aLeft right: aRight [
-        |result|
-        result := super new: aChar count: aCount.
-        result setLeft: aLeft andRight: aRight.
-        ^ result
-    ]
+   setLeft: aLeft andRight: aRight [
+       left := aLeft.
+       right := aRight.
+   ]
 
-    setLeft: aLeft andRight: aRight [
-        left := aLeft.
-        right := aRight.
-    ]
+   printOn: aStream [
+       (self printBase: aStream) << ',' << left << ',' << right << ')'.
+   ]
 
-    printOn: aStream [
-        (self printBase: aStream) << ',' << left << ',' << right << ')'.
-    ]
-
-    inorder: visitor prefix: string [
-        left inorder: visitor prefix: string, '0'.
-        right inorder: visitor prefix: string, '1'.
-    ]
+   inorder: visitor prefix: string [
+       left inorder: visitor prefix: string, '0'.
+       right inorder: visitor prefix: string, '1'.
+   ]
 ]
 
 nl := Character nl.
@@ -249,16 +245,17 @@ Here, we want to read in values from our frequency table and put
 its values in a sorted collection as tuples. Tuple: (index, value). 
 Sort the collection by value. This will function as a priority queue.
 "
-"readfile catFile."
 |frequencyTable|
 frequencyTable := readfile parseFile.
-(0 to: frequencyTable size -1)
-do: [:index |
-    index display.
-    ' ' display.
-    item := frequencyTable at: index.
-    item display.
-    nl display.
+dFlag ifTrue: [
+    (0 to: frequencyTable size -1)
+    do: [:index |
+        index display.
+        ' ' display.
+        item := frequencyTable at: index.
+        item display.
+        nl display.
+    ].
 ].
 |pq|
 pq := SortedCollection new.
@@ -273,4 +270,4 @@ do: [ :index |
    ].
 ].
 readfile close.
-pq inspect.
+dFlag ifTrue: [pq inspect.].
