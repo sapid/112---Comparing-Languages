@@ -254,7 +254,7 @@ cFlag := false.
 tFlag := false.
 uFlag := false.
 infile := ''.
-outfile := ''.
+outfile := stdout.
 
 (1 to: Smalltalk arguments size)
 do: [:index |
@@ -272,7 +272,7 @@ do: [:index |
         (infile isEmpty) ifTrue: [
             infile := argu.
         ] ifFalse: [
-            outfile := argu.
+            outfile :=  argu.
         ]
     ]
 ].
@@ -415,6 +415,87 @@ uFlag ifTrue: [ "Perform decompression."
    inBitstream := BitStream new: readfile.
    outBitstream := BitStream new: writefile.
    
+   stack := OrderedCollection new.
+   treeComplete := false.
+   decodeTree := nil.
+
+   [(outBitstream atEnd not) & (treeComplete = false)] whileTrue: [
+      |ordChar|
+      ordChar := outBitstream nextBit.
+      ordChar = 0 ifTrue: [
+         realChar := 0.
+         basetwo := 1.
+
+         (1 to: 8) do: [:skip |
+            |currbit|
+            currbit := outBitstream nextBit.
+            (currbit = 1)
+               ifTrue: [realChar := realChar + basetwo.].
+            basetwo := basetwo *2.
+         ].
+         realChar = 0 ifTrue: [
+            |currbit|
+            currbit := outBitstream nextBit.
+            currbit =1 ifTrue: [stack addFirst: (Leaf new: 256 asCharacter count: 1).]
+                       ifFalse: [stack addFirst: (Leaf new: 0 asCharacter count: 1).].
+         ] ifFalse: [stack addFirst: (Leaf new: realChar asCharacter count: 1).].
+      ] ifFalse: [
+         stack size > 0 ifTrue: [
+            right := stack removeFirst.
+            stack size = 0 ifTrue: [
+               decodeTree := right.
+               treeComplete := true.
+            ] ifFalse: [
+               left := stack removeFirst.
+               stack addFirst: (Tree new: (left char) count: 1 left: left right: right).
+            ].
+          ].
+       ].
+    ].
+   dFlag ifTrue: [decodeTree inspect.].
+
+   tempTree := decodeTree.
+   eof := false.
+   [(outBitstream atEnd not) & (eof = false)] whileTrue: [
+      |enbit|
+   
+      enbit := outBitstream nextBit.
+
+      enbit = 0 ifTrue: [
+         tempTree class = Leaf ifTrue: [
+            tempTree char asInteger = 256 ifTrue: [eof = true.].
+         ] ifFalse: [
+           tempTree := tempTree left.
+           tempTree class = Leaf ifTrue: [
+              tempTree char asInteger = 256 ifTrue: [ eof = true.]
+                 ifFalse: [
+                    |bytearr|
+                    bytearr := ByteArray new: 1.
+                    bytearr at: 1 put: tempTree char asInteger.
+                    writefile << bytearr asString.
+                 ].
+               tempTree := decodeTree.
+            ].
+         ].
+      ] ifFalse: [
+         tempTree class = Leaf ifTrue: [
+            tempTree char asInteger = 256 ifTrue: [eof := true.].
+         ] ifFalse: [
+            tempTree = tempTree right.
+            tempTree class = Leaf ifTrue: [
+               tempTree char asInteger = 256 ifTrue: [ eof := true.]
+                  ifFalse: [
+                     |bytearr|
+                     bytearr := ByteArray new: 1.
+                     bytearr at: 1 put: tempTree char asInteger.
+                     writefile << bytearr asString.
+                  ].
+               tempTree := decodeTree.
+            ].
+         ].
+      ].
+   ].
+
    readfile close.
    writefile close.
 ].
