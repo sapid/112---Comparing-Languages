@@ -151,21 +151,6 @@ Object subclass: Leaf [
         char := aChar.
         count := aCount.
     ]
-   " Does this work? "
-   encodingCreate: theString [
-      |theBag|
-      theBag := Bag new.
-      ^ theBag add: (char theString).
-   ]
-   encodingDump: theString [
-      |theBag theItem|
-      theBag := Bag new.
-      theItem := Array new: 2.
-      theItem
-         at: 1 put: char;
-         at: 2 put: theString.
-      ^ theBag add: theItem.
-   ]
 
     <= other [
         ^ (count < other count)
@@ -209,28 +194,6 @@ Leaf subclass: Tree [
    setLeft: aLeft andRight: aRight [
        left := aLeft.
        right := aRight.
-   ]
-   " Does this work? "
-   encodingCreate:  theString [
-      |nextString theBag|
-      theBag := Bag new.
-      nextString := theString bitShift: 1.
-      theBag addAll: [left encodingCreate: nextString.].
-      nextString := theString + 1.
-      ^ theBag addAll: [right encodingCreate: nextString.].
-   ]
-   encodingDump:  theString [
-      |nextString theBag addMe|
-      theBag := Bag new.
-      nextString := theString, '0'.
-      addMe := left encodingDump: nextString.
-      addMe do: [
-
-      ]
-      theBag addAll: addMe.
-      nextString := theString, '1'.
-      addMe := right encodingDump: nextString.
-      ^ theBag addAll: addMe.
    ]
 
    printOn: aStream [
