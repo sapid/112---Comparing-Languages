@@ -59,12 +59,20 @@ Object subclass: BitStream [
          writeIndex := 9.
       ].
    ]
+   
    putString: theString [
-      (1 to: theString size) " This may be off by one. "
-      do: [:index | self putBit: (theString at: index).].
+      "(1 to: theString size - 1)" " This may be off by one. "
+      "do: [:index | self putBit: (theString at: index)]."
+      theString do: [:index|
+         (index asString = '0')
+            ifTrue: [self putBit: 0]
+            ifFalse: [self putBit: 1].
+      ].
    ]
    padOut [
-      writeIndex = 1 whileFalse: [ self putBit: 0. ].
+      [writeIndex > 1 & writeIndex < 9] whileFalse: [ 
+         self putBit: 0. 
+         writeIndex := writeIndex - 1.].
    ]
    atEnd [
       ^bitIndex = 1 and: [myStream atEnd]
@@ -187,9 +195,18 @@ Object subclass: Leaf [
         visitor value: char value: string.
     ]
 
-    "binTableDump: aBitStream [
-      aBitStream << 
-     " 
+    binTreeDump: aBitstream [
+      aBitstream putBit: 0.
+      (1 to: 8) do: [:index | 
+          aBitstream putBit: ( (self char asInteger) bitAt: index) ].
+      char asInteger = 0 ifTrue: [
+         aBitstream putBit: 0.
+      ].
+      char asInteger = 256 ifTrue: [
+         aBitstream putBit: 1.
+      ]
+
+    ]
 
 ]
 
@@ -223,8 +240,11 @@ Leaf subclass: Tree [
        right inorder: visitor prefix: string, '1'.
    ]
 
-   binTableDump: aBitstream [
+   binTreeDump: aBitstream [
       "Left child, then right child, then print for current node."
+      left binTreeDump: aBitstream.
+      right binTreeDump: aBitstream.
+      aBitstream putBit: 1.
    ]
 ]
 
@@ -289,18 +309,21 @@ dFlag ifTrue: [
         ]
     ].    
 ].
-|readfile|
+|readfile writefile|
 readfile := FileStream open: infile 
                        mode: FileStream read.
+writefile := FileStream open: outfile
+                        mode: FileStream write.
+|frequencyTable|
+" Here we build the frequency table. "
+uFlag ifFalse: [frequencyTable := readfile parseFile.].
 "
 Here, we want to read in values from our frequency table and put 
 its values in a sorted collection as tuples. Tuple: (index, value). 
 Sort the collection by value. This will function as a priority queue.
 "
-|frequencyTable|
-frequencyTable := readfile parseFile.
 dFlag ifTrue: [
-    (0 to: frequencyTable size -1)
+    (0 to: frequencyTable size - 1)
     do: [:index |
         index display.
         ' ' display.
@@ -311,74 +334,87 @@ dFlag ifTrue: [
 ].
 |pq|
 pq := SortedCollection new.
-(0 to: frequencyTable size -1)
-do: [ :index |
-   |aLeaf aCount aChar|
-   aCount := frequencyTable at: index.
-   aCount isInteger ifTrue: [
-       aChar := index asCharacter.
-       aLeaf := Leaf new: aChar  count: aCount.
-       pq add: aLeaf.
+" Here we build the pq. "
+uFlag ifFalse:[
+   (0 to: frequencyTable size - 1)
+   do: [ :index |
+      |aLeaf aCount aChar|
+      aCount := frequencyTable at: index.
+      aCount isInteger ifTrue: [
+          aChar := index asCharacter.
+          aLeaf := Leaf new: aChar  count: aCount.
+          pq add: aLeaf.
+      ].
    ].
 ].
-readfile close.
 dFlag ifTrue: [pq inspect.].
 
-[pq size > 1] whileTrue: [
-    |last seclast aTree treeChar treeCount|
-    last := pq removeFirst.
-    seclast := pq removeFirst.
-    treeChar := last char.
-    treeCount := last count + seclast count.
-    aTree := Tree new: treeChar count: treeCount left: last 
-                                                 right: seclast.
-    pq add: aTree.
+" Here we build a tree from the pq. "
+uFlag ifFalse: [
+   [pq size > 1] whileTrue: [
+       |last seclast aTree treeChar treeCount|
+       last := pq removeFirst.
+       seclast := pq removeFirst.
+       treeChar := last char.
+       treeCount := last count + seclast count.
+       aTree := Tree new: treeChar count: treeCount left: last 
+                                                    right: seclast.
+       pq add: aTree.
+   ].
 ].
 dFlag ifTrue: [pq inspect.].
 |theTree encodeTable|
-theTree := pq removeLast.
+uFlag ifFalse: [ theTree := pq removeLast. ].
 encodeTable := ZeroArray new: 257.
-theTree inorder: [:char :string |
-    |index count|
-    index := char asInteger.
-    encodeTable at: index put: string.
-] prefix: ''.
-
-tFlag ifTrue: [ "tFlag enabled; print to stdout"
-(0 to: encodeTable size - 1)
-do: [:index |
-    |char great32 less127 count string|
-    great32 := index > 32.
-    less127 := index < 127.
-    count := frequencyTable at: index.
-    string := encodeTable at: index.
-    count isInteger ifTrue: [
-       great32 & less127 ifTrue: [
-          char := index asCharacter.
-          stdout << char << ' ' << count << ' ' << string << nl.
-       ] ifFalse: [
-          stdout << index << ' ' << count << ' ' << string << nl.
+uFlag ifFalse: [
+   theTree inorder: [:char :string |
+       |index count|
+       index := char asInteger.
+       encodeTable at: index put: string.
+   ] prefix: ''.
+].
+tFlag ifTrue: [ "Dump to stdout"
+   (0 to: encodeTable size - 1)
+   do: [:index |
+       |char great32 less127 count string|
+       great32 := index > 32.
+       less127 := index < 127.
+       count := frequencyTable at: index.
+       string := encodeTable at: index.
+       count isInteger ifTrue: [
+          great32 & less127 ifTrue: [
+             char := index asCharacter.
+             stdout << char << ' ' << count << ' ' << string << nl.
+          ] ifFalse: [
+             stdout << index << ' ' << count << ' ' << string << nl.
+          ].
        ].
-    ].
-]. 
-"theTree inorder: [:char :string |
-      |great32 less127 index count|
-      index := char asInteger.
-      count := frequencyTable at: index.
-      great32 := index > 32.
-      less127 := index < 127.
-      great32 & less127 ifTrue: [
-         stdout << char << ' ' << count << ' ' << string << nl.
-      ] 
-      ifFalse: [
-         stdout << index << ' ' << count << ' ' << string << nl.
-      ].
-      ] prefix: ''."
+   ]. 
+   readfile close.
+].
+cFlag ifTrue: [ "Perform compression."
+   |encString|
+   aBitstream := BitStream new: writefile.
+   readfile reset.
+   theTree binTreeDump: aBitstream.
+   aBitstream putBit: 1. "This will pop the last thing off the stack when we decode."
+   [readfile atEnd not] whileTrue: [
+      |index|
+      index := readfile next asInteger.
+      encString := (encodeTable at: index).
+      aBitstream putString: encString.
    ].
-cFlag ifTrue: [ "Perform compression instead."
-     aBitstream := BitStream new: outfile.
-     theTree inorder: [:char :string |
-         |index count|
-   ].
+   encString := encodeTable at: 256.
+   aBitstream putString: encString.
+   aBitstream padOut.
+   readfile close.
+   writefile close.
+].
 
+uFlag ifTrue: [ "Perform decompression."
+   inBitstream := BitStream new: readfile.
+   outBitstream := BitStream new: writefile.
+   
+   readfile close.
+   writefile close.
 ].
