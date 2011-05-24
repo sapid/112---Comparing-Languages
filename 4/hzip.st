@@ -161,7 +161,7 @@ Object subclass: Leaf [
     |char count|
     char [ ^ char ]
     count [ ^ count ]
-
+    isLeaf [ ^ true ]
     Leaf class >> new [
         self shouldNotImplement
     ]
@@ -224,7 +224,7 @@ Leaf subclass: Tree [
        ^ result
    ]
 
-   isLeaf [ ^ true ]
+   isLeaf [ ^ false ]
 
    setLeft: aLeft andRight: aRight [
        left := aLeft.
@@ -464,33 +464,27 @@ uFlag ifTrue: [ "Perform decompression."
       enbit := outBitstream nextBit.
 
       enbit = 0 ifTrue: [
-         tempTree class = Leaf ifTrue: [
+         tempTree  isLeaf ifTrue: [
             tempTree char asInteger = 256 ifTrue: [eof = true.].
          ] ifFalse: [
            tempTree := tempTree left.
-           tempTree class = Leaf ifTrue: [
+           tempTree  isLeaf ifTrue: [
               tempTree char asInteger = 256 ifTrue: [ eof = true.]
                  ifFalse: [
-                    |bytearr|
-                    bytearr := ByteArray new: 1.
-                    bytearr at: 1 put: tempTree char asInteger.
-                    writefile << bytearr asString.
+                    writefile << tempTree char.
                  ].
                tempTree := decodeTree.
             ].
          ].
       ] ifFalse: [
-         tempTree class = Leaf ifTrue: [
+         tempTree isLeaf ifTrue: [
             tempTree char asInteger = 256 ifTrue: [eof := true.].
          ] ifFalse: [
             tempTree = tempTree right.
-            tempTree class = Leaf ifTrue: [
+            tempTree  isLeaf ifTrue: [
                tempTree char asInteger = 256 ifTrue: [ eof := true.]
                   ifFalse: [
-                     |bytearr|
-                     bytearr := ByteArray new: 1.
-                     bytearr at: 1 put: tempTree char asInteger.
-                     writefile << bytearr asString.
+                     writefile << tempTree char.
                   ].
                tempTree := decodeTree.
             ].
