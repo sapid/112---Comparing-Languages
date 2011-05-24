@@ -1,4 +1,4 @@
-#!./gst -f
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/smalltalk/bin/gst -f
 "#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/smalltalk-3.2.4/bin/gst -f"
 "
 This is a zip utility written by Benjamin Ross(bpross) 
