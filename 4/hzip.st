@@ -40,7 +40,7 @@ Object subclass: BitStream [
       myStream := fileStream.
       bitIndex := 1.
       writeIndex := 9.
-      stringIndex := 1.
+      writeByte := 0.
    ]
    nextBit [
       bitIndex = 1 ifTrue: [
@@ -51,26 +51,20 @@ Object subclass: BitStream [
       ^byte value bitAt: bitIndex
    ]
    putBit: theBit [
-      writeIndex = 1 ifTrue: [
-         myStream << writeByte.
-         writeIndex := 9.
-         writeByte := 0.
-      ].
       writeIndex := writeIndex - 1.
-      writeByte bitAt: bitIndex bitPut: theBit.
+      writeByte := writeByte bitAt: writeIndex put: theBit.
+      writeIndex = 1 ifTrue: [
+         myStream nextPutByte: writeByte.
+         writeByte := 0.
+         writeIndex := 9.
+      ].
    ]
    putString: theString [
-      (1 to: theString size)
+      (1 to: theString size - 1)
       do: [:index | self putBit: theString at: index.].
    ]
    padOut [
-      writeIndex = 1 ifTrue: myStream << writeByte.
-         ifFalse: [
-            whileFalse: [
-            writeIndex := writeIndex - 1.
-            writeByte bitAt: bitIndex bitPut: 0.
-            ]
-         ]
+      writeIndex = 1 whileFalse: [ self putBit: 0. ].
    ]
    atEnd [
       ^bitIndex = 1 and: [myStream atEnd]
