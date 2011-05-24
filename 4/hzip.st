@@ -28,6 +28,30 @@ Exactly one of these options is required
         written to the output file, if specified, or to the std output 
         if not
 "
+Object subclass: BitStream [
+   |bitIndex byte myStream|
+   BitStream class >> new: fileStream [
+      |result|
+      result := super new.
+      result init: fileStream.
+      ^result
+   ]
+   init: fileStream [
+      myStream := fileStream.
+      bitIndex := 1.
+   ]
+   nextBit [
+      bitIndex = 1 ifTrue: [
+         byte := myStream next.
+         bitIndex := 9.
+      ].
+      bitIndex := bitIndex - 1.
+      ^byte value bitAt: bitIndex
+   ]
+   atEnd [
+      ^bitIndex = 1 and: [myStream atEnd]
+   ]
+]
 
 "
 Because smalltalk indexes arrays starting with 1 this class is needed to
@@ -145,10 +169,11 @@ Object subclass: Leaf [
 
     <= other [
         ^ (count < other count)
-        | ((count = other count) & (char <= other char))
+        | ((count = other count) & (char <= other char) 
     ]
 
     printBase: aStream [
+    |fixhl| "Fix highlighting in vim - variable never used."
         ^ aStream << self class << '(' << char << ',' << count
     ]
     printOn: aStream [
@@ -158,6 +183,10 @@ Object subclass: Leaf [
     inorder: visitor prefix: string [
         visitor value: char value: string.
     ]
+
+    inorderbin: aStream [
+      aStream << 
+      
 
 ]
 
@@ -211,6 +240,10 @@ Leaf subclass: Tree [
    inorder: visitor prefix: string [
        left inorder: visitor prefix: string, '0'.
        right inorder: visitor prefix: string, '1'.
+   ]
+
+   inorderbin: aBitstream [
+      "Left child, then right child, then 
    ]
 ]
 
@@ -322,19 +355,26 @@ dFlag ifTrue: [pq inspect.].
 dFlag ifTrue: [pq inspect.].
 |theTree|
 theTree := pq removeLast.
-|theEncodingBag theString|
+tFlag ifTrue: [ "tFlag enabled; print to stdout"
 theTree inorder: [:char :string |
-   |great32 less127 index count|
-   index := char asInteger.
-   count := frequencyTable at: index.
-   great32 := index > 32.
-   less127 := index < 127.
-   great32 & less127 ifTrue: [
-       stdout << char << ' ' << count << ' ' << string << nl.
-   ] ifFalse: [
-       stdout << index << ' ' << count << ' ' << string << nl.
+      |great32 less127 index count|
+      index := char asInteger.
+      count := frequencyTable at: index.
+      great32 := index > 32.
+      less127 := index < 127.
+      great32 & less127 ifTrue: [
+         stdout << char << ' ' << count << ' ' << string << nl.
+      ]. 
+      ifFalse: [
+         stdout << index << ' ' << count << ' ' << string << nl.
+      ].
+      ] prefix: ''.
    ].
-] prefix: ''.
+cFlag ifTrue: [ "Perform compression instead."
+     aBitstream := BitStream new: outfile.
+     theTree inorderbin: aBitstream. 
+   ].
+
 "tFlag ifTrue: [
    theString := ''.
    theEncodingBag := Bag new.
