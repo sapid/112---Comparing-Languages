@@ -230,6 +230,8 @@ Leaf subclass: Tree [
        left := aLeft.
        right := aRight.
    ]
+   right [ ^ right ]
+   left [ ^ left ]
 
    printOn: aStream [
        (self printBase: aStream) << ',' << left << ',' << right << ')'.
