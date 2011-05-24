@@ -20,8 +20,6 @@ Exactly one of these options is required
 
 
 Next steps:
-- Implement -t
-   -- Check if it's in the range of printable characters.
 - Implement NOT -t (Create an encoding table with bitfields)
 - Print encoding table to file as a bitstream
 - Implement decoding
