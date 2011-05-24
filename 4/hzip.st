@@ -29,7 +29,7 @@ Exactly one of these options is required
         if not
 "
 Object subclass: BitStream [
-   |bitIndex byte myStream writeIndex writeByte|
+   |stringIndex bitIndex byte myStream writeIndex writeByte|
    BitStream class >> new: fileStream [
       |result|
       result := super new.
@@ -61,12 +61,12 @@ Object subclass: BitStream [
    ]
    putString: theString [
       (1 to: theString size)
-      do: [:index | self putBit: theString at: index.].
+      do: [:index | self putBit: theString at: index.]
    ]
    padOut [
-      writeIndex = 1 ifTrue: myStream << writeByte.
+      writeIndex = 1 ifTrue: [myStream << writeByte.]
          ifFalse: [
-            whileFalse: [
+            writeIndex > 0 whileFalse: [
             writeIndex := writeIndex - 1.
             writeByte bitAt: bitIndex bitPut: 0.
             ]
@@ -178,7 +178,7 @@ Object subclass: Leaf [
 
     <= other [
         ^ (count < other count)
-        | ((count = other count) & (char <= other char) 
+        | ((count = other count) & (char <= other char)) 
     ]
 
     printBase: aStream [
@@ -193,9 +193,9 @@ Object subclass: Leaf [
         visitor value: char value: string.
     ]
 
-    binTableDump: aBitStream [
+    "binTableDump: aBitStream [
       aBitStream << 
-      
+     " 
 
 ]
 
@@ -336,14 +336,38 @@ dFlag ifTrue: [pq inspect.].
     seclast := pq removeFirst.
     treeChar := last char.
     treeCount := last count + seclast count.
-    aTree := Tree new: treeChar count: treeCount left: last right: seclast.
+    aTree := Tree new: treeChar count: treeCount left: last 
+                                                 right: seclast.
     pq add: aTree.
 ].
 dFlag ifTrue: [pq inspect.].
-|theTree|
+|theTree encodeTable|
 theTree := pq removeLast.
-tFlag ifTrue: [ "tFlag enabled; print to stdout"
+encodeTable := ZeroArray new: 257.
 theTree inorder: [:char :string |
+    |index count|
+    index := char asInteger.
+    encodeTable at: index put: string.
+] prefix: ''.
+
+tFlag ifTrue: [ "tFlag enabled; print to stdout"
+(0 to: encodeTable size - 1)
+do: [:index |
+    |char great32 less127 count string|
+    great32 := index > 32.
+    less127 := index < 127.
+    count := frequencyTable at: index.
+    string := encodeTable at: index.
+    count isInteger ifTrue: [
+       great32 & less127 ifTrue: [
+          char := index asCharacter.
+          stdout << char << ' ' << count << ' ' << string << nl.
+       ] ifFalse: [
+          stdout << index << ' ' << count << ' ' << string << nl.
+       ].
+    ].
+]. 
+"theTree inorder: [:char :string |
       |great32 less127 index count|
       index := char asInteger.
       count := frequencyTable at: index.
@@ -351,20 +375,16 @@ theTree inorder: [:char :string |
       less127 := index < 127.
       great32 & less127 ifTrue: [
          stdout << char << ' ' << count << ' ' << string << nl.
-      ]. 
+      ] 
       ifFalse: [
          stdout << index << ' ' << count << ' ' << string << nl.
       ].
-      ] prefix: ''.
+      ] prefix: ''."
    ].
 cFlag ifTrue: [ "Perform compression instead."
      aBitstream := BitStream new: outfile.
-     theTree binTableDump: aBitstream. 
+     theTree inorder: [:char :string |
+         |index count|
    ].
 
-"tFlag ifTrue: [
-   theString := ''.
-   theEncodingBag := Bag new.
-   theTree encodingDump: theString
-   theEncodingBag inspect.]. "
-      "ifFalse: [theEncodingBag := theTree encodingCreate: theString.]."
+].
