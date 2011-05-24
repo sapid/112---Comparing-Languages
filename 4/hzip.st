@@ -29,7 +29,7 @@ Exactly one of these options is required
         if not
 "
 Object subclass: BitStream [
-   |bitIndex byte myStream|
+   |bitIndex byte myStream writeIndex writeByte|
    BitStream class >> new: fileStream [
       |result|
       result := super new.
@@ -39,6 +39,8 @@ Object subclass: BitStream [
    init: fileStream [
       myStream := fileStream.
       bitIndex := 1.
+      writeIndex := 9.
+      stringIndex := 1.
    ]
    nextBit [
       bitIndex = 1 ifTrue: [
@@ -47,6 +49,28 @@ Object subclass: BitStream [
       ].
       bitIndex := bitIndex - 1.
       ^byte value bitAt: bitIndex
+   ]
+   putBit: theBit [
+      writeIndex = 1 ifTrue: [
+         myStream << writeByte.
+         writeIndex := 9.
+         writeByte := 0.
+      ].
+      writeIndex := writeIndex - 1.
+      writeByte bitAt: bitIndex bitPut: theBit.
+   ]
+   putString: theString [
+      (1 to: theString size)
+      do: [:index | self putBit: theString at: index.].
+   ]
+   padOut [
+      writeIndex = 1 ifTrue: myStream << writeByte.
+         ifFalse: [
+            whileFalse: [
+            writeIndex := writeIndex - 1.
+            writeByte bitAt: bitIndex bitPut: 0.
+            ]
+         ]
    ]
    atEnd [
       ^bitIndex = 1 and: [myStream atEnd]
@@ -169,8 +193,8 @@ Object subclass: Leaf [
         visitor value: char value: string.
     ]
 
-    inorderbin: aStream [
-      aStream << 
+    binTableDump: aBitStream [
+      aBitStream << 
       
 
 ]
@@ -205,7 +229,7 @@ Leaf subclass: Tree [
        right inorder: visitor prefix: string, '1'.
    ]
 
-   inorderbin: aBitstream [
+   binTableDump: aBitstream [
       "Left child, then right child, then print for current node."
    ]
 ]
@@ -335,7 +359,7 @@ theTree inorder: [:char :string |
    ].
 cFlag ifTrue: [ "Perform compression instead."
      aBitstream := BitStream new: outfile.
-     theTree inorderbin: aBitstream. 
+     theTree binTableDump: aBitstream. 
    ].
 
 "tFlag ifTrue: [
