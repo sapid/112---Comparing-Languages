@@ -324,10 +324,16 @@ dFlag ifTrue: [pq inspect.].
 theTree := pq removeLast.
 |theEncodingBag theString|
 theTree inorder: [:char :string |
-   |index count|
+   |great32 less127 index count|
    index := char asInteger.
    count := frequencyTable at: index.
-   stdout << char << ' ' << count << ' ' << string << nl.
+   great32 := index > 32.
+   less127 := index < 127.
+   great32 & less127 ifTrue: [
+       stdout << char << ' ' << count << ' ' << string << nl.
+   ] ifFalse: [
+       stdout << index << ' ' << count << ' ' << string << nl.
+   ].
 ] prefix: ''.
 "tFlag ifTrue: [
    theString := ''.
