@@ -243,7 +243,7 @@ Leaf subclass: Tree [
    ]
 
    inorderbin: aBitstream [
-      "Left child, then right child, then 
+      "Left child, then right child, then print for current node."
    ]
 ]
 
