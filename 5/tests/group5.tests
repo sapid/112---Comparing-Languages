@@ -1,0 +1,5 @@
+write( 'Test 5' ), nl.
+
+[database].
+[functions].
+fly(Somewhere,Nowhere).

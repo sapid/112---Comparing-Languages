@@ -1,0 +1,6 @@
+write( 'Test 4' ), nl.
+
+[database].
+[functions].
+fly(london,paris).
+fly(lax,london).

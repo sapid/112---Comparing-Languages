@@ -1,0 +1,11 @@
+write( 'Test 2'), nl.
+
+[database].
+[functions].
+fly(sjc,dfw).
+fly(sfo,sjc).
+fly(sjc,lax).
+fly(sfo,sea).
+fly(mia,lax).
+fly(mia,sjc).
+fly(lax,nyc).
