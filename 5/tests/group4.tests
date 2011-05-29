@@ -1,4 +1,5 @@
-write( 'Test 4' ), nl.
+write( 'Test 4: Interpreted airports.' ), nl.
+% Possibly uses a database we can't see.
 
 [database].
 [functions].

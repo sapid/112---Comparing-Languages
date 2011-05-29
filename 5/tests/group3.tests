@@ -1,4 +1,4 @@
-write( 'Test 3' ), nl.
+write( 'Test 3: Reflexive flights.' ), nl.
 
 [database].
 [functions].

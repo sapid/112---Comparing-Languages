@@ -1,4 +1,4 @@
-write( 'Test 1' ), nl.
+write( 'Test 1: Indirect flights' ), nl.
 
 [database].
 [functions].

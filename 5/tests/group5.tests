@@ -1,4 +1,5 @@
 write( 'Test 5' ), nl.
+% May use a database we can't see.
 
 [database].
 [functions].
