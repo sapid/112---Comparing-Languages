@@ -69,7 +69,7 @@ travel(A,B,Visited,Path) :-
 * and must be replaced.
 */
 
-skate([Depart|Depart_name], [Arrive|Arrive_name]) :-
+skate(Depart, Arrive) :-
    write('---'), nl,
    airport( Depart, Depart_name, Depart_lat, Depart_long ),
    airport( Arrive, Arrive_name, Arrive_lat, Arrive_long),
