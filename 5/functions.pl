@@ -22,6 +22,15 @@ distance( Airport1, Airport2, DistanceMiles ) :-
                DistanceDegrees ),
    DistanceMiles is 69 * DistanceDegrees.
 
+flight_time(Airport1, Airport2, FlightTime) :-
+   distance(Airport1, Airport2, DistanceMiles),
+   FlightTime is DistanceMiles / 500.
+
+arrival_time(Airport1, Airport2, ArrivalTime) :-
+   flight(Airport1, Airport2, DepartureTime),
+   flight_time(Airport1, Airport2, FlightTime),
+   ArrivalTime is DepartureTime + FlightTime.
+
 hoursmins_to_hours( time( Hours, Mins ), Hoursonly ) :-
    Hoursonly is Hours + Mins / 60.
 
@@ -39,14 +48,35 @@ print_time( Hoursonly ) :-
    print( ':' ),
    print_2digits( Mins ).
 
+connected(X,Y) :- flight(X, Y, t).
+
+flight_path( A, B, Path) :- 
+   travel(A,B,[A],Q), 
+   reverse(Q,Path).
+
+travel(A,B,P,[B|P]) :- 
+   connected(A,B).
+
+travel(A,B,Visited,Path) :-
+   connected(A,C),           
+   C \== B,
+   \+member(C,Visited),
+   travel(C,B,[C|Visited],Path).  
+   
+
 /*
 * The following is a dummy predicate which doesn't work
 * and must be replaced.
 */
 
+skate([Depart|Depart_name], [Arrive|Arrive_name]) :-
+   write('---'), nl,
+   airport( Depart, Depart_name, Depart_lat, Depart_long ),
+   airport( Arrive, Arrive_name, Arrive_lat, Arrive_long),
+   write('depart  '), write( Depart ), write('  '), write( Depart_name ), nl,
+   write('arrive  '), write( Arrive ), write('  '), write( Arrive_name ), nl.
+
 fly( Depart, Arrive ) :-
-   nl, nl,
-   write('======================================================'), nl,
    write( 'Depart=' ), write( Depart ), nl,
    write( 'Arrive=' ), write( Arrive ), nl,
    flight( Depart, Arrive, Time ),
