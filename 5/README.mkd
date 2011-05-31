@@ -6,4 +6,4 @@ x Flight code for multi-city flights.
 x Travel time for multi-city flights. 
 x Print multi-city itineraries.
 o Choose only shortest route.
-o Choose only flights that make chronological sense.
+x Choose only flights that make chronological sense. (Needs testing, but should work)

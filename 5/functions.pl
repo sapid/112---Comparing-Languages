@@ -39,6 +39,9 @@ arrival_time(Airport1, Airport2, ArrivalTime) :-
 mins_to_hours(Mins, Hours):-
    Hours is Mins / 60.
 
+hours_to_mins(Mins, Hours) :-
+   Mins is Hours * 60.
+
 hoursmins_to_hours( time( Hours, Mins ), Hoursonly ) :-
    Hoursonly is Hours + Mins / 60.
 
@@ -81,13 +84,21 @@ writepath( Depart, [Arrive|List]) :-
    nl,
    writepath( Arrive, List ).
 
+sanetime(T1, T2) :-
+   hoursmins_to_hours(T1, H1),
+   hoursmins_to_hours(T2, H2),
+   hours_to_mins(M1, H1),
+   hours_to_mins(M2, H2),
+   M1 + 29 < M2.
 
 listpath( Node, End, Outlist ) :-
    listpath( Node, End, [Node], Outlist ).
 
 listpath( Node, Node, _, [Node] ).
 listpath( Node, End, Tried, [Node|List] ) :-
-   flight( Node, Next, _ ),
+   flight( Node, Next, Time1 ),
+   flight( Next, _, Time2 ),
+   sanetime(Time1, Time2),
    not( member( Next, Tried )),
    listpath( Next, End, [Next|Tried], List ).
 
