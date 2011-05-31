@@ -3,6 +3,7 @@ TODO
 x Flight code for direct flights.
 x Calculate travel time for direct flights.
 x Flight code for multi-city flights.
-o Travel time for multi-city flights. (In progress...)
-o Choose shortest route
-o Choose only flights that make chronological sense
+x Travel time for multi-city flights. 
+x Print multi-city itineraries.
+o Choose only shortest route.
+o Choose only flights that make chronological sense.

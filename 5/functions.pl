@@ -34,7 +34,6 @@ arrival_time(Airport1, Airport2, ArrivalTime) :-
    flight_time(Airport1, Airport2, FlightTimeMins),
    hoursmins_to_hours(time(DH,DM), DepartureTime),
    mins_to_hours(FlightTimeMins, FlightTime), % Convert to hoursonly
-   nl, write('Flight time is '), write(FlightTime), nl,
    ArrivalTime is DepartureTime + FlightTime.
 
 mins_to_hours(Mins, Hours):-
@@ -57,32 +56,31 @@ print_time( Hoursonly ) :-
    print( ':' ),
    print_2digits( Mins ).
 
-% Find a path.
-
-%ispath(A1, A1). % Base case. 
-%ispath(A1, A2) :- % Airport1, Airport2 
-%   flight(A1, AM, _),
-%   ispath(AM, A2). % Recurse.
-%
-%ispath(A1, A2) :- ispath2( A1, A2, [] ).
-
-ispath2( A1, A1, _). % Base case.
-ispath2( A1, A2, Path) :- % Make sure we don't repeat.
-   flight( A1, AM, _),
-   not(member(AM, Path)),
-   ispath2(AM, A2, [A1|Path]).
-writeallpaths( Node, Node ) :-
-   write( Node ), write( ' is ' ), write( Node ), nl.
-writeallpaths( Node, Next ) :-
-   listpath( Node, Next, [Node], List ),
-   write( Node ), write( ' to ' ), write( Next ), write( ' is ' ),
-   writepath( List ),
-   fail.
-
 writepath( [] ) :-
-   nl.
-writepath( [Head|Tail] ) :-
-   write( ' ' ), write( Head ), writepath( Tail ).
+   true.
+
+writepath( [Depart|List] ) :-
+   writepath( Depart, List ).
+
+writepath(_, []) :-
+   true.
+
+writepath( Depart, [Arrive|List]) :-
+   flight( Depart, Arrive, DTimeHM ), % Departure time in (hours, mins)
+   airport( Depart, Depart_name, _, _ ),
+   airport( Arrive, Arrive_name, _, _),
+   hoursmins_to_hours(DTimeHM, DepartTime), % Convert to hoursonly
+   arrival_time(Depart,Arrive,ArrivalTime), % Arrival time in hoursonly
+   write('depart  '), write( Depart ), 
+      write('  '), write( Depart_name ), 
+      write('  '), print_time( DepartTime),
+   nl,
+   write('arrive  '), write( Arrive ), 
+      write('  '), write( Arrive_name ), 
+      write('  '), print_time( ArrivalTime),
+   nl,
+   writepath( Arrive, List ).
+
 
 listpath( Node, End, Outlist ) :-
    listpath( Node, End, [Node], Outlist ).
@@ -113,17 +111,6 @@ listpath( Node, End, Tried, [Node|List] ) :-
 %   travel(C,B,[C|Visited],Path).  
    
 fly( Depart, Arrive ) :-
-   flight( Depart, Arrive, DTimeHM ), % Departure time in (hours, mins)
-   airport( Depart, Depart_name, _, _ ),
-   airport( Arrive, Arrive_name, _, _),
-   hoursmins_to_hours(DTimeHM, DepartTime), % Convert to hoursonly
-   arrival_time(Depart,Arrive,ArrivalTime), % Arrival time in hoursonly
-   write('depart  '), write( Depart ), 
-      write('  '), write( Depart_name ), 
-      write('  '), print_time( DepartTime),
-   nl,
-   write('arrive  '), write( Arrive ), 
-      write('  '), write( Arrive_name ), 
-      write('  '), print_time( ArrivalTime),
-   nl.
+   listpath(Depart, Arrive, List),
+   writepath(List).
 
