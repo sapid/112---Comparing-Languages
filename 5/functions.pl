@@ -3,6 +3,9 @@
 * Tested using SWI prolog.
 */
 
+not(X) :- X, !, fail.
+not(_).
+
 degmin_to_deg( degmin( Degrees, Minutes ), Degreesonly ) :-
    Degreesonly is Degrees + Minutes / 60.
 
@@ -27,9 +30,15 @@ flight_time(Airport1, Airport2, FlightTime) :-
    FlightTime is DistanceMiles / 500.
 
 arrival_time(Airport1, Airport2, ArrivalTime) :-
-   flight(Airport1, Airport2, DepartureTime),
-   flight_time(Airport1, Airport2, FlightTime),
+   flight(Airport1, Airport2, time(DH,DM)),
+   flight_time(Airport1, Airport2, FlightTimeMins),
+   hoursmins_to_hours(time(DH,DM), DepartureTime),
+   mins_to_hours(FlightTimeMins, FlightTime), % Convert to hoursonly
+   nl, write('Flight time is '), write(FlightTime), nl,
    ArrivalTime is DepartureTime + FlightTime.
+
+mins_to_hours(Mins, Hours):-
+   Hours is Mins / 60.
 
 hoursmins_to_hours( time( Hours, Mins ), Hoursonly ) :-
    Hoursonly is Hours + Mins / 60.
@@ -48,48 +57,50 @@ print_time( Hoursonly ) :-
    print( ':' ),
    print_2digits( Mins ).
 
-connected(X,Y) :- flight(X, Y, t).
+% Find a path.
 
-flight_path( A, B, Path) :- 
-   travel(A,B,[A],Q), 
-   reverse(Q,Path).
+ispath(A1, A1). 
+ispath(A1, A2) :- % Airport1, Airport2
+   flight(A1, AM, _),
+   ispath(AM, A2).
 
-travel(A,B,P,[B|P]) :- 
-   connected(A,B).
+ispath(A1, A2) :- ispath2( A1, A2, [] ).
 
-travel(A,B,Visited,Path) :-
-   connected(A,C),           
-   C \== B,
-   \+member(C,Visited),
-   travel(C,B,[C|Visited],Path).  
+ispath2( A1, A1, _).
+ispath2( A1, A2, Path) :-
+   flight( A1, AM, _),
+   not(member(AM, Path)),
+   ispath2(AM, A2, [A1|Path]).
+
+% 
+
+%connected(X,Y) :- flight(X, Y, _).
+%
+%flight_path( A, B, Path) :- 
+%   travel(A,B,[A],Q), 
+%   reverse(Q,Path).
+%
+%travel(A,B,P,[B|P]) :- 
+%   connected(A,B).
+%
+%travel(A,B,Visited,Path) :-
+%   connected(A,C),           
+%   C \== B,
+%   \+member(C,Visited),
+%   travel(C,B,[C|Visited],Path).  
    
-
-/*
-* The following is a dummy predicate which doesn't work
-* and must be replaced.
-*/
-
-skate(Depart, Arrive) :-
-   write('---'), nl,
-   airport( Depart, Depart_name, Depart_lat, Depart_long ),
-   airport( Arrive, Arrive_name, Arrive_lat, Arrive_long),
-   write('depart  '), write( Depart ), write('  '), write( Depart_name ), nl,
-   write('arrive  '), write( Arrive ), write('  '), write( Arrive_name ), nl.
-
 fly( Depart, Arrive ) :-
-   write( 'Depart=' ), write( Depart ), nl,
-   write( 'Arrive=' ), write( Arrive ), nl,
-   flight( Depart, Arrive, Time ),
-   write( 'Time=' ), write( Time ), nl,
-   airport( Depart, Depart_name, Depart_lat, Depart_long ),
-   airport( Arrive, Arrive_name, Arrive_lat, Arrive_long ),
-   write( 'Depart=' ), write( Depart ), nl,
-   write( 'Depart_name=' ), write( Depart_name ), nl,
-   write( 'Depart_lat=' ), write( Depart_lat ), nl,
-   write( 'Depart_long=' ), write( Depart_long ), nl,
-   write( 'Arrive=' ), write( Arrive ), nl,
-   write( 'Arrive_name=' ), write( Arrive_name ), nl,
-   write( 'Arrive_lat=' ), write( Arrive_lat ), nl,
-   write( 'Arrive_long=' ), write( Arrive_long ), nl,
+   flight( Depart, Arrive, DTimeHM ), % Departure time in (hours, mins)
+   airport( Depart, Depart_name, _, _ ),
+   airport( Arrive, Arrive_name, _, _),
+   hoursmins_to_hours(DTimeHM, DepartTime), % Convert to hoursonly
+   arrival_time(Depart,Arrive,ArrivalTime), % Arrival time in hoursonly
+   write('depart  '), write( Depart ), 
+      write('  '), write( Depart_name ), 
+      write('  '), print_time( DepartTime),
+   nl,
+   write('arrive  '), write( Arrive ), 
+      write('  '), write( Arrive_name ), 
+      write('  '), print_time( ArrivalTime),
    nl.
 
