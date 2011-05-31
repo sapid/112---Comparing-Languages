@@ -96,7 +96,7 @@ listpath( Node, End, Outlist ) :-
 
 listpath( Node, Node, _, [Node] ).
 listpath( Node, End, Tried, [Node|List] ) :-
-   flight( Node, Next, Time1 ),
+   arrival_time( Node, Next, Time1 ),
    flight( Next, _, Time2 ),
    sanetime(Time1, Time2),
    not( member( Next, Tried )),
