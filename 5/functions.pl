@@ -59,18 +59,41 @@ print_time( Hoursonly ) :-
 
 % Find a path.
 
-ispath(A1, A1). 
-ispath(A1, A2) :- % Airport1, Airport2
-   flight(A1, AM, _),
-   ispath(AM, A2).
+%ispath(A1, A1). % Base case. 
+%ispath(A1, A2) :- % Airport1, Airport2 
+%   flight(A1, AM, _),
+%   ispath(AM, A2). % Recurse.
+%
+%ispath(A1, A2) :- ispath2( A1, A2, [] ).
 
-ispath(A1, A2) :- ispath2( A1, A2, [] ).
-
-ispath2( A1, A1, _).
-ispath2( A1, A2, Path) :-
+ispath2( A1, A1, _). % Base case.
+ispath2( A1, A2, Path) :- % Make sure we don't repeat.
    flight( A1, AM, _),
    not(member(AM, Path)),
    ispath2(AM, A2, [A1|Path]).
+writeallpaths( Node, Node ) :-
+   write( Node ), write( ' is ' ), write( Node ), nl.
+writeallpaths( Node, Next ) :-
+   listpath( Node, Next, [Node], List ),
+   write( Node ), write( ' to ' ), write( Next ), write( ' is ' ),
+   writepath( List ),
+   fail.
+
+writepath( [] ) :-
+   nl.
+writepath( [Head|Tail] ) :-
+   write( ' ' ), write( Head ), writepath( Tail ).
+
+listpath( Node, End, Outlist ) :-
+   listpath( Node, End, [Node], Outlist ).
+
+listpath( Node, Node, _, [Node] ).
+listpath( Node, End, Tried, [Node|List] ) :-
+   flight( Node, Next, _ ),
+   not( member( Next, Tried )),
+   listpath( Next, End, [Next|Tried], List ).
+
+
 
 % 
 
