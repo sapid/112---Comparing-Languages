@@ -91,7 +91,13 @@ sanetime(T1, T2) :-
    hours_to_mins(M2, H2),
    M1 + 29 < M2.
 
+listwrapper(Node, End, Collection) :-
+   % Collect lists, ensuring they aren't already members of our 
+   % Find smallest of those lists.
+   listpath(Node, End, List).
+
 listpath( Node, End, Outlist ) :-
+   not(Node = End), % Pre-condition: Not trying to fly to the departure airport.
    listpath( Node, End, [Node], Outlist ).
 
 listpath( Node, Node, _, [Node] ).
@@ -104,5 +110,10 @@ listpath( Node, End, Tried, [Node|List] ) :-
 
 fly( Depart, Arrive ) :-
    listpath(Depart, Arrive, List),
+   % If we didn't find a path, fail with a message.
    writepath(List).
+
+fly( Depart, Depart ) :-
+   write('Error: Departure and arrival airports are the same.'),
+   !, fail.
 
