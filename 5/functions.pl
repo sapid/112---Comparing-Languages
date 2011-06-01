@@ -84,8 +84,7 @@ writepath( Depart, [Arrive|List]) :-
    nl,
    writepath( Arrive, List ).
 
-sanetime(T1, T2) :-
-   hoursmins_to_hours(T1, H1),
+sanetime(H1, T2) :-
    hoursmins_to_hours(T2, H2),
    hours_to_mins(M1, H1),
    hours_to_mins(M2, H2),
