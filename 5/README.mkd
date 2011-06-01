@@ -7,3 +7,5 @@ x Travel time for multi-city flights.
 x Print multi-city itineraries.
 o Choose only shortest route.
 x Choose only flights that make chronological sense. (Needs testing, but should work)
+o Error message in case no flight is possible.
+o Error message in case the two airports are identical.
