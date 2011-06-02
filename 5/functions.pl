@@ -52,8 +52,7 @@ print_2digits( Digits ) :-
 print_time( Hoursonly ) :-
    Minsonly is floor( Hoursonly * 60 ),
    Hours is Minsonly // 60,
-   Minst is Minsonly mod 60,
-   Mins is floor(Minst),
+   Mins is Minsonly mod 60,
    print_2digits( Hours ),
    print( ':' ),
    print_2digits( Mins ).
@@ -61,8 +60,6 @@ print_time( Hoursonly ) :-
 writepath( [] ).
 
 writepath( [flight(Depart,Arrive,DTimeHM)|List]) :-
-   %write(List),nl,
-   %flight( Depart, Arrive, DTimeHM ), % Departure time in (hours, mins)
    airport( Depart, Depart_name, _, _ ),
    airport( Arrive, Arrive_name, _, _),
    hoursmins_to_hours(DTimeHM, DepartTime), % Convert to hoursonly
