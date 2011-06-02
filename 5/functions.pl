@@ -59,14 +59,12 @@ print_time( Hoursonly ) :-
    print( ':' ),
    print_2digits( Mins ).
 
-writepath( [] ) :-
-   true.
+writepath( [] ) :- true.
 
 writepath( [Depart|List] ) :-
    writepath( Depart, List ).
 
-writepath(_, []) :-
-   true.
+writepath(_, []) :- true.
 
 writepath( Depart, [Arrive|List]) :-
    flight( Depart, Arrive, DTimeHM ), % Departure time in (hours, mins)
@@ -82,7 +80,26 @@ writepath( Depart, [Arrive|List]) :-
       write('  '), write( Arrive_name ), 
       write('  '), print_time( ArrivalTime),
    nl,
-   writepath( Arrive, List ).
+   writepath( Arrive, List, ArrivalTime).
+
+writepath(_, [], _):- true.
+
+writepath( Depart, [Arrive|List], PrevArrival) :-
+   flight( Depart, Arrive, DTimeHM ), % Departure time in (hours, mins)
+   sanetime(PrevArrival, DTimeHM),
+   airport( Depart, Depart_name, _, _ ),
+   airport( Arrive, Arrive_name, _, _),
+   hoursmins_to_hours(DTimeHM, DepartTime), % Convert to hoursonly
+   arrival_time(Depart,Arrive,ArrivalTime), % Arrival time in hoursonly
+   write('depart  '), write( Depart ), 
+      write('  '), write( Depart_name ), 
+      write('  '), print_time( DepartTime),
+   nl,
+   write('arrive  '), write( Arrive ), 
+      write('  '), write( Arrive_name ), 
+      write('  '), print_time( ArrivalTime),
+   nl,
+   writepath( Arrive, List, ArrivalTime ).
 
 sanetime(H1, T2) :-
    hoursmins_to_hours(T2, H2),
@@ -97,15 +114,16 @@ listwrapper(Node, End, Collection) :-
 
 listpath( Node, End, Outlist ) :-
    not(Node = End), % Pre-condition: Not trying to fly to the departure airport.
-   listpath( Node, End, [Node], Outlist ).
+   listpath2( Node, End, [Node], Outlist ).
 
-listpath( Node, Node, _, [Node] ).
-listpath( Node, End, Tried, [Node|List] ) :-
+listpath2( Node, Node, _, [Node] ).
+listpath2( Node, End, Tried, [Node|List] ) :-
    arrival_time( Node, Next, Time1 ),
-   flight( Next, _, Time2 ),
+   flight( Next, A, Time2 ),
    sanetime(Time1, Time2),
    not( member( Next, Tried )),
-   listpath( Next, End, [Next|Tried], List ).
+   listpath2( Next, End, [Next|Tried], List ). 
+      % Next node to try, destination, input list, output list
 
 fly( Depart, Arrive ) :-
    listpath(Depart, Arrive, List),
