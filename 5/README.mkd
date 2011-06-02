@@ -5,12 +5,11 @@ x Calculate travel time for direct flights.
 x Flight code for multi-city flights.
 x Travel time for multi-city flights. 
 x Print multi-city itineraries.
-x Choose only shortest route.
-   http://www2.ucsc.edu/courses/cmps112-wm/:/Languages/prolog/Examples/graphpaths.pl
-   http://stackoverflow.com/questions/4462862/short-path-in-prolog
-   Turns out the database is set up in such a way that we only need to return the first one.
+o Choose only shortest route.
+   http://stackoverflow.com/questions/1468150/how-do-i-find-all-solutions-to-a-goal-in-prolog
+
 x Choose only flights that make chronological sense. (Needs testing, but should work)
 x Error message in case no flight is possible.
 x Error message in case an airport does not exist.
 x Error message in case the two airports are identical.
-o Off by one error?
+x Off by one error?

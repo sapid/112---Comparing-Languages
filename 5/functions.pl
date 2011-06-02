@@ -32,7 +32,7 @@ flight_time(Airport1, Airport2, FlightTime) :-
 arrival_time(flight(Airport1, Airport2, time(DH,DM)), ArrivalTime) :-
    flight_time(Airport1, Airport2, FlightTime),
    hoursmins_to_hours(time(DH,DM), DepartureTime),
-   ArrivalTime is DepartureTime + FlightTime.
+   ArrivalTime is DepartureTime + FlightTime. % Unit is hoursonly
 
 mins_to_hours(Mins, Hours):-
    Hours is Mins / 60.
@@ -80,6 +80,10 @@ sanetime(H1, T2) :-
    hours_to_mins(M2, H2),
    M1 + 29 < M2.
 
+sanearrival(flight(Dep,Arriv,DepTime)) :-
+   arrival_time(flight(Dep,Arriv,DepTime), ArrivTime),
+   ArrivTime < 24.
+
 listpath( Node, End, [flight(Node, Next, NDep)|Outlist] ) :-
    % Pre-condition: Not trying to fly to the departure airport.
    not(Node = End), 
@@ -94,6 +98,7 @@ listpath( Node, End,
    %write('  Testing: '), write(Node), write(' '), write(Next),nl,
    arrival_time(flight(PDep,PArr,PDepTime), PArriv), % Get PrevArrivalTime.
    sanetime(PArriv, NDep), % Is this transfer possible?
+   sanearrival(flight(Node,Next,NDep)),
    Tried2 = append([flight(PDep,PArr,PDepTime)], Tried),
    not( member( Next, Tried2 )), % Is this flight in our path already?
    not(Next = PArr),
