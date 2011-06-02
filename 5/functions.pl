@@ -31,7 +31,7 @@ flight_time(Airport1, Airport2, FlightTime) :-
 
 arrival_time(flight(Airport1, Airport2, time(DH,DM)), ArrivalTime) :-
    flight_time(Airport1, Airport2, FlightTime),
-   hoursmins_to_hours(DH,DM, DepartureTime),
+   hoursmins_to_hours(time(DH,DM), DepartureTime),
    ArrivalTime is DepartureTime + FlightTime, write('Arrival: '), write(ArrivalTime),nl.
 
 mins_to_hours(Mins, Hours):-
@@ -40,7 +40,7 @@ mins_to_hours(Mins, Hours):-
 hours_to_mins(Mins, Hours) :-
    Mins is Hours * 60.
 
-hoursmins_to_hours(  Hours, Mins , Hoursonly ) :-
+hoursmins_to_hours( time( Hours, Mins) , Hoursonly ) :-
    Hoursonly is Hours + Mins / 60.
 
 print_2digits( Digits ) :-
