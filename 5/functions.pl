@@ -23,16 +23,16 @@ distance( Airport1, Airport2, DistanceMiles ) :-
    degmin_to_deg( Longitude2, Longdegrees2 ),
    pythagoras( Latdegrees1, Longdegrees1, Latdegrees2, Longdegrees2,
                DistanceDegrees ),
-   DistanceMiles is 69 * DistanceDegrees, write('Distance: '), write(DistanceMiles), nl.
+   DistanceMiles is 69 * DistanceDegrees.
 
 flight_time(Airport1, Airport2, FlightTime) :-
    distance(Airport1, Airport2, DistanceMiles),
-   FlightTime is DistanceMiles / 500, write('FlightTime: '), write(ArrivalTime), nl.
+   FlightTime is DistanceMiles / 500.
 
 arrival_time(flight(Airport1, Airport2, time(DH,DM)), ArrivalTime) :-
    flight_time(Airport1, Airport2, FlightTime),
    hoursmins_to_hours(time(DH,DM), DepartureTime),
-   ArrivalTime is DepartureTime + FlightTime, write('Arrival: '), write(ArrivalTime),nl.
+   ArrivalTime is DepartureTime + FlightTime.
 
 mins_to_hours(Mins, Hours):-
    Hours is Mins / 60.
@@ -52,7 +52,8 @@ print_2digits( Digits ) :-
 print_time( Hoursonly ) :-
    Minsonly is floor( Hoursonly * 60 ),
    Hours is Minsonly // 60,
-   Mins is Minsonly mod 60,
+   Minst is Minsonly mod 60,
+   Mins is floor(Minst),
    print_2digits( Hours ),
    print( ':' ),
    print_2digits( Mins ).
