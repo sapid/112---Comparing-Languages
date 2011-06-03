@@ -109,8 +109,47 @@ listpath( Node, End,
    [flight(Node, Next, NDep)|Tried2], 
       List ). 
 
-fly( Depart, Arrive ) :-
+traveltime([flight(Dep, Arr, DTimeHM)|List], Length) :-
+   length(List, 0),
+   hoursmins_to_hours(DTimeHM,DTimeH), 
+   arrival_time(flight(Dep, Arr, DTimeHM), ArrivalTime),
+   Length is ArrivalTime - DTimeH.
+
+traveltime([flight(Dep, Arr, DTimeHM)|List], Length) :-
+   length(List, L),
+   L > 0,
+   traveltime(flight(Dep, Arr, DTimeHM), List, Length).
+   
+
+traveltime(flight(_, _, DTimeHM), [Head|List], Length) :-
+   length(List, 0),
+   hoursmins_to_hours(DTimeHM, DTimeH),
+   arrival_time(Head, ArrivalTime),
+   Length is ArrivalTime - DTimeH.
+
+traveltime(flight(Dep, Arr, DTimeHM), [_|List], Length) :-
+   length(List, L),
+   L > 0,
+   traveltime(flight(Dep, Arr, DTimeHM), List, Length).
+   
+
+shortest(Depart, Arrive, List) :-
    listpath(Depart, Arrive, List),
+   noshorter(Depart, Arrive, List).
+
+noshorter(Depart, Arrive, List) :-
+   listpath(Depart, Arrive, List2),
+   traveltime(List, Length1),
+   traveltime(List2, Length2),
+   Length1 > Length2,
+   !, fail.
+
+noshorter(_, _, _).
+
+
+fly( Depart, Arrive ) :-
+   shortest(Depart, Arrive, List),
+   %listpath(Depart, Arrive, List),
    % If we didn't find a path, fail with a message.
    nl,
    writepath(List),!.
@@ -130,7 +169,7 @@ fly( _, Arrive ) :-
    !, fail.
 
 fly( Depart, Arrive ) :- 
-   \+listpath(Depart,Arrive,_),
+   \+shortest(Depart, Arrive, _),
    write('Error: Did not find a valid itinerary.'),
    !, fail.
    
