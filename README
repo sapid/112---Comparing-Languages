@@ -6,3 +6,4 @@ Project manifest:
 2: sbi, an interpreter for Silly Basic written in Scheme.
 3: deskcalc, an rpn calculator written in OCaml.
 4: hzip, a huffman encoder written in SmallTalk.
+5: prolog...
