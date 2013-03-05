@@ -1,15 +1,3 @@
-TODO
+Pathfinder
 ====
-x Flight code for direct flights.
-x Calculate travel time for direct flights.
-x Flight code for multi-city flights.
-x Travel time for multi-city flights. 
-x Print multi-city itineraries.
-o Choose only shortest route.
-   http://stackoverflow.com/questions/1468150/how-do-i-find-all-solutions-to-a-goal-in-prolog
-
-x Choose only flights that make chronological sense. (Needs testing, but should work)
-x Error message in case no flight is possible.
-x Error message in case an airport does not exist.
-x Error message in case the two airports are identical.
-x Off by one error?
+This is a program written in Prolog to find the shortest route from one airport to another using a sample airport database.
