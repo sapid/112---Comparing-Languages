@@ -1,3 +1,1 @@
-This program was completed using pair programming.
-Partner: Benjamin Ross (bpross@ucsc.edu)
-Partner: Will Crawford (wacrawfo@ucsc.edu)
+This implements a subset of make's functions in Perl.
